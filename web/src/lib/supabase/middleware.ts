@@ -4,7 +4,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 type CookieToSet = {
   name: string;
   value: string;
-  options?: Parameters<typeof NextResponse.prototype.cookies.set>[0] extends never ? never : any;
+  options?: any;
 };
 
 export async function updateSession(request: NextRequest) {
