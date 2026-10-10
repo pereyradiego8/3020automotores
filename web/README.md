@@ -32,10 +32,15 @@ Abrí http://localhost:3000. Para que funcionen el inicio de sesión, el inventa
 4. Configurar `.env.local` y verificar que las políticas RLS y Storage estén activas.
 5. Revisar manualmente los vehículos, precios, teléfonos, fotos y datos comerciales. No usar los datos históricos como stock actual sin confirmación.
 6. Ejecutar build y pruebas de navegación con la configuración real.
-7. Configurar dominio, hosting, metadatos SEO, redirecciones desde las URLs antiguas y analítica antes del lanzamiento.
+7. Configurar `NEXT_PUBLIC_SITE_URL` con la URL pública canónica (URL definitiva del hosting o dominio aprobado); esto habilita el sitemap y su referencia desde `robots.txt`.
+8. Configurar dominio, hosting, revisar las redirecciones desde las URLs antiguas y analítica antes del lanzamiento.
 
 Sin credenciales de Supabase, el catálogo queda vacío intencionalmente. No se debe publicar ni fusionar la propuesta en producción hasta que las pruebas estén verdes y los datos comerciales estén aprobados.
 
+
+## SEO técnico
+
+La aplicación incluye `sitemap.xml` con el inicio, el catálogo y las fichas publicadas, y `robots.txt` que permite indexar las páginas públicas y excluye `/admin`. Ambos usan `NEXT_PUBLIC_SITE_URL`; configurala en el entorno de despliegue antes del lanzamiento y no uses una URL temporal como dirección canónica.
 
 ## Contacto de WhatsApp
 
