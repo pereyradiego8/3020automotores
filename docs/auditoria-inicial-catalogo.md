@@ -6,6 +6,8 @@ Página de catálogo examinada: `autos.html`.
 
 ## Resultado preliminar
 - Se detectaron 15 enlaces de fichas de vehículos en la página estática examinada.
+- Se pudieron leer las 15 fichas enlazadas y extraer sus campos principales; esto confirma que el contenido estructurado está disponible para preparar una migración, aunque no confirma que los datos comerciales sigan vigentes.
+- Se generaron dos entregables de revisión: `data/catalogo-historico.json` (estructura normalizada con estado de verificación) y `data/catalogo-revision.csv` (planilla para validación manual).
 - El catálogo referencia fotografías locales bajo `wp-content/uploads/`; hay archivos con carpetas de 2026/10, 2026/09, 2026/08 y 2026/07.
 - Las fichas individuales contienen galerías y campos como marca, kilometraje, tipo, combustible, año, motor, puertas, transmisión y color.
 - Las URLs antiguas mezclan páginas del formato `index.html@p=ID.html` con URLs en directorios como `autos/slug/index.html`. El migrador debe normalizar estas rutas y guardar el mapeo de redirecciones.
