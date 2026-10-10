@@ -8,8 +8,8 @@ function normalize(value: string) {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es-AR').trim();
 }
 
-export default function VehicleCatalog({ vehicles }: { vehicles: PublicVehicle[] }) {
-  const [query, setQuery] = useState('');
+export default function VehicleCatalog({ vehicles, initialMake = '' }: { vehicles: PublicVehicle[]; initialMake?: string }) {
+  const [query, setQuery] = useState(initialMake);
   const [body, setBody] = useState('Todos');
   const [year, setYear] = useState('Todos');
   const [sort, setSort] = useState('recent');
