@@ -33,3 +33,11 @@ El archivo `src/data/catalogo-historico.json` proviene de una exportación hist�
 5. Completar pruebas, SEO, redirecciones y despliegue.
 
 El panel administrativo y la base de datos todavía no están implementados; no cargar credenciales hasta definir el proyecto y sus políticas de acceso.
+
+## Panel privado y base de datos
+
+Se agregó el primer flujo de acceso del personal, un panel de inventario, carga de vehículos y cambios de estado. Para configurarlo, seguí [`supabase/README.md`](supabase/README.md), ejecutá el SQL de `supabase/migrations/202610100001_inventory.sql` y completá `web/.env.local` con los valores de `web/.env.example`.
+
+Los vehículos nuevos se guardan como borrador. El catálogo público consulta únicamente registros con estado `published`; las fichas históricas no se publican automáticamente. Sin credenciales de Supabase, el catálogo público queda vacío intencionalmente.
+
+La conexión real a Supabase, las pruebas de compilación/navegador, el almacenamiento de imágenes y el despliegue todavía requieren configuración y validación. No publicar hasta probarlos.
