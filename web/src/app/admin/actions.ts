@@ -37,6 +37,7 @@ export async function createVehicle(formData: FormData) {
   if (error) throw new Error('No se pudo guardar. Revisá si ya existe una ficha con ese título.');
   revalidatePath('/admin');
   revalidatePath('/autos');
+  revalidatePath('/sitemap.xml');
   redirect('/admin');
 }
 
@@ -64,13 +65,20 @@ export async function saveVehicleImages(vehicleId: string, imageUrls: string[]) 
     throw new Error('Datos de imágenes no válidos.');
   }
   const allowedPrefix = `${baseUrl.replace(/\/$/, '')}/storage/v1/object/public/vehicle-images/`;
-  if (imageUrls.some((url) => typeof url !== 'string' || !url.startsWith(allowedPrefix))) {
-    throw new Error('Las imágenes deben pertenecer al almacenamiento de vehículos.');
+  if (new Set(imageUrls).size !== imageUrls.length || imageUrls.some((url) => {
+    if (typeof url !== 'string' || !url.startsWith(allowedPrefix)) return true;
+    const objectPath = url.slice(allowedPrefix.length);
+    return !objectPath.startsWith(`${vehicleId}/`) || objectPath.split('/').some((part) => !part || part === '.' || part === '..');
+  })) {
+    throw new Error('Las imágenes deben ser únicas y pertenecer a este vehículo.');
   }
+  const { data: vehicle, error: readError } = await supabase.from('vehicles').select('id').eq('id', vehicleId).maybeSingle();
+  if (readError || !vehicle) throw new Error('No se encontró el vehículo.');
   const { error } = await supabase.from('vehicles').update({ image_urls: imageUrls }).eq('id', vehicleId);
   if (error) throw new Error('No se pudieron guardar las imágenes.');
   revalidatePath('/admin');
   revalidatePath('/autos');
+  revalidatePath('/sitemap.xml');
 }
 
 export async function updateVehicle(formData: FormData) {
