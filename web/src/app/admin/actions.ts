@@ -22,7 +22,7 @@ export async function createVehicle(formData: FormData) {
   if (!title || !make || !model || !Number.isInteger(year) || year < 1950 || year > 2100) {
     throw new Error('Completá título, marca, modelo y año válido.');
   }
-  const slug = title.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const slug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
   const { error } = await supabase.from('vehicles').insert({
     title, slug, make, model, year,
     price_text: String(formData.get('price') || '').trim() || null,
