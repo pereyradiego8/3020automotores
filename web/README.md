@@ -27,7 +27,7 @@ Abrí http://localhost:3000. Para que funcionen el inicio de sesión, el inventa
 
 ## Configuración obligatoria antes de usar
 
-1. Crear el proyecto Supabase y ejecutar `supabase/migrations/202610100001_inventory.sql` desde SQL Editor.
+1. Crear el proyecto Supabase y ejecutar, en este orden, `supabase/migrations/202610100001_inventory.sql`, `supabase/migrations/202610100002_import_historical_vehicle_drafts.sql` y `supabase/migrations/202610100003_import_additional_vehicle_drafts.sql` desde SQL Editor. Las dos últimas cargan 24 fichas históricas como borradores, no visibles en el catálogo público hasta revisión y publicación manual.
 2. Crear cuentas del personal en Supabase Auth y desactivar el registro público.
 3. Autorizar cada cuenta insertando su UUID en `public.admin_users`; ver [la guía de Supabase](supabase/README.md).
 4. Configurar `.env.local` y verificar que las políticas RLS y Storage estén activas.
