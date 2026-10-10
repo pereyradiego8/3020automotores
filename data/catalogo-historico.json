@@ -1,0 +1,128 @@
+{
+  "source_repository": "pereyradiego8/3020automotores",
+  "source_page": "autos.html",
+  "extracted_at": "2026-10-10",
+  "warning": "Esto NO es inventario confirmado en tiempo real. Son registros detectados en una exportación estática; confirmar disponibilidad, precios, estado y vigencia antes de publicar.",
+  "records": [
+    {
+      "title": "JETOUR X50 1.5 6DCT 0KM",
+      "legacy_path": "index.html@p=18117.html",
+      "image": "wp-content/uploads/2026/10/JETOUR-X50-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "JETOUR Dashing 1.5T 6DCT 0KM",
+      "legacy_path": "index.html@p=18051.html",
+      "image": "wp-content/uploads/2026/10/JETOUR-Dashing-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "DS3 THP MT6 SPORT CHIC 2019",
+      "legacy_path": "index.html@p=18029.html",
+      "image": "wp-content/uploads/2026/10/DS3-2019-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "VOLKSWAGEN VENTO 2.5 ADVANCE PLUS AT 2016",
+      "legacy_path": "index.html@p=18005.html",
+      "image": "wp-content/uploads/2026/09/Vento-2016-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "TOYOTA ETIOS XLS 1.5 6M/T 2021",
+      "legacy_path": "index.html@p=17957.html",
+      "image": "wp-content/uploads/2026/09/Etios-2021-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "FORD KA 1.5 S + SEDAN 2019",
+      "legacy_path": "index.html@p=17800.html",
+      "image": "wp-content/uploads/2026/09/Ford-Ka-2019-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "PEUGEOT 2008 1.6 FELINE MT L/22 2022",
+      "legacy_path": "index.html@p=17798.html",
+      "image": "wp-content/uploads/2026/09/2008-2022-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "FORD MAVERICK LARIAT 2.0L 4X4 AT 2022",
+      "legacy_path": "index.html@p=17705.html",
+      "image": "wp-content/uploads/2026/08/Maverick-2022-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "HYUNDAI TUCSON 2WD 2.0 2018",
+      "legacy_path": "index.html@p=17636.html",
+      "image": "wp-content/uploads/2026/08/Tucson-2018-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "RENAULT SANDERO PH2 LIFE 1.6 2023",
+      "legacy_path": "index.html@p=17569.html",
+      "image": "wp-content/uploads/2026/08/Sandero-2023-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "JEEP RENEGADE LONGITUDE 1.8L AT6 2021",
+      "legacy_path": "autos/jeep-renegade-longitude-1-8l-at6-2021/index.html",
+      "image": "wp-content/uploads/2026/08/Jeep-2021-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "SUZUKI GRAND VITARA 2.0 5PTAS MT 2006",
+      "legacy_path": "index.html@p=17498.html",
+      "image": "wp-content/uploads/2026/08/Grand-Vitara-2006-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "CHEVROLET CRUZE 1.4 TURBO PREMIER AT 2023",
+      "legacy_path": "index.html@p=17341.html",
+      "image": "wp-content/uploads/2026/07/Cruze-2023-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "NISSAN NOTE ADVANCE CVT 2019",
+      "legacy_path": "index.html@p=17296.html",
+      "image": "wp-content/uploads/2026/07/Note-2019-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    },
+    {
+      "title": "TOYOTA HILUX 4X4 SRX 2.8 TDI A/T 2016",
+      "legacy_path": "index.html@p=17276.html",
+      "image": "wp-content/uploads/2026/07/Hilux-2016-1-1920x1080.jpg",
+      "price": null,
+      "availability": "requires_verification",
+      "notes": "Extraído de la exportación estática; confirmar stock, precio y condiciones antes de publicar."
+    }
+  ]
+}
