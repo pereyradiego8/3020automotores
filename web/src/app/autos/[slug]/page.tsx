@@ -1,6 +1,24 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getPublishedVehicles } from '@/lib/inventory';
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const vehicles = await getPublishedVehicles();
+  const vehicle = vehicles.find((item) => item.slug === slug);
+  if (!vehicle) return { title: 'Vehículo no disponible' };
+  return {
+    title: vehicle.title,
+    description: `Consultá por ${vehicle.title} en 3020 Automotores. Confirmá disponibilidad, precio y condiciones con el equipo comercial.`,
+    openGraph: {
+      title: vehicle.title,
+      description: `Consultá por ${vehicle.title} en 3020 Automotores.`,
+      images: vehicle.image_urls?.[0] ? [vehicle.image_urls[0]] : [],
+      type: 'website',
+    },
+  };
+}
 
 export default async function VehiclePage({ params }: { params: Promise<{ slug: string }> }) {
   const {slug}=await params;
