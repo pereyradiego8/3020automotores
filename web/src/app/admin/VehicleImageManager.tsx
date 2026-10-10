@@ -28,7 +28,7 @@ export default function VehicleImageManager({ vehicleId, initialUrls }: { vehicl
       }
       const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
       if (!baseUrl) throw new Error('Falta configurar Supabase.');
-      const uploadedUrls = uploadedPaths.map((path) => `${baseUrl.replace(/\\/$/, '')}/storage/v1/object/public/vehicle-images/${path}`);
+      const uploadedUrls = uploadedPaths.map((path) => `${baseUrl.replace(/\/$/, '')}/storage/v1/object/public/vehicle-images/${path}`);
       const nextUrls = [...urls, ...uploadedUrls];
       await saveVehicleImages(vehicleId, nextUrls);
       setUrls(nextUrls);
