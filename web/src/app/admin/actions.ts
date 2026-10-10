@@ -72,12 +72,20 @@ export async function saveVehicleImages(vehicleId: string, imageUrls: string[]) 
     throw new Error('Datos de imágenes no válidos.');
   }
   const allowedPrefix = `${baseUrl.replace(/\/$/, '')}/storage/v1/object/public/vehicle-images/`;
+  const legacyPrefix = 'https://raw.githubusercontent.com/pereyradiego8/3020automotores/main/wp-content/uploads/';
   if (new Set(imageUrls).size !== imageUrls.length || imageUrls.some((url) => {
-    if (typeof url !== 'string' || !url.startsWith(allowedPrefix)) return true;
-    const objectPath = url.slice(allowedPrefix.length);
-    return !objectPath.startsWith(`${vehicleId}/`) || objectPath.split('/').some((part) => !part || part === '.' || part === '..');
+    if (typeof url !== 'string') return true;
+    if (url.startsWith(allowedPrefix)) {
+      const objectPath = url.slice(allowedPrefix.length);
+      return !objectPath.startsWith(`${vehicleId}/`) || objectPath.split('/').some((part) => !part || part === '.' || part === '..');
+    }
+    if (url.startsWith(legacyPrefix)) {
+      const legacyPath = url.slice(legacyPrefix.length);
+      return /[?#]/.test(legacyPath) || legacyPath.split('/').some((part) => !part || part === '.' || part === '..');
+    }
+    return true;
   })) {
-    throw new Error('Las imágenes deben ser únicas y pertenecer a este vehículo.');
+    throw new Error('Las imágenes deben ser únicas y pertenecer a este vehículo o al archivo histórico autorizado.');
   }
   const { data: vehicle, error: readError } = await supabase.from('vehicles').select('id').eq('id', vehicleId).maybeSingle();
   if (readError || !vehicle) throw new Error('No se encontró el vehículo.');
@@ -121,10 +129,19 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
     throw new Error('Datos de imagen no válidos.');
   }
   const prefix = `${baseUrl.replace(/\/$/, '')}/storage/v1/object/public/vehicle-images/`;
-  if (!imageUrl.startsWith(prefix)) throw new Error('La imagen no pertenece al almacenamiento de vehículos.');
-  const objectPath = imageUrl.slice(prefix.length);
-  if (!objectPath.startsWith(`${vehicleId}/`) || objectPath.split('/').some((part) => !part || part === '.' || part === '..')) {
+  const legacyPrefix = 'https://raw.githubusercontent.com/pereyradiego8/3020automotores/main/wp-content/uploads/';
+  const isStorageImage = imageUrl.startsWith(prefix);
+  const isLegacyImage = imageUrl.startsWith(legacyPrefix);
+  if (!isStorageImage && !isLegacyImage) throw new Error('La imagen no pertenece al almacenamiento autorizado.');
+  const objectPath = isStorageImage ? imageUrl.slice(prefix.length) : '';
+  if (isStorageImage && (!objectPath.startsWith(`${vehicleId}/`) || objectPath.split('/').some((part) => !part || part === '.' || part === '..'))) {
     throw new Error('La imagen no pertenece a este vehículo.');
+  }
+  if (isLegacyImage) {
+    const legacyPath = imageUrl.slice(legacyPrefix.length);
+    if (/[?#]/.test(legacyPath) || legacyPath.split('/').some((part) => !part || part === '.' || part === '..')) {
+      throw new Error('La ruta de la imagen histórica no es válida.');
+    }
   }
 
   const { data: vehicle, error: readError } = await supabase
@@ -136,10 +153,12 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
   const { error: updateError } = await supabase.from('vehicles').update({ image_urls: nextUrls }).eq('id', vehicleId);
   if (updateError) throw new Error('No se pudo quitar la imagen de la ficha.');
 
-  const { error: storageError } = await supabase.storage.from('vehicle-images').remove([objectPath]);
+  const { error: storageError } = isStorageImage
+    ? await supabase.storage.from('vehicle-images').remove([objectPath])
+    : { error: null };
   revalidatePath('/admin');
   revalidatePath('/autos');
   revalidatePath(`/autos/${vehicle.slug}`);
   revalidatePath('/sitemap.xml');
-  return { removedFromStorage: !storageError };
+  return { removedFromStorage: isStorageImage && !storageError, removedFromListOnly: isLegacyImage };
 }
