@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       ...legacyRedirects,
+      { source: '/index.html', destination: '/', permanent: true },
+      { source: '/autos.html', destination: '/autos', permanent: true },
+      { source: '/autos/:slug/index.html', destination: '/autos/:slug', permanent: true },
+      { source: '/nosotros/index.html', destination: '/nosotros', permanent: true },
+      { source: '/contacto/index.html', destination: '/contacto', permanent: true },
+      { source: '/marcas/index.html', destination: '/marcas', permanent: true },
+      { source: '/marcas/:marca/index.html', destination: '/marcas', permanent: true },
       { source: '/nosotros/', destination: '/nosotros', permanent: true },
       { source: '/contacto/', destination: '/contacto', permanent: true },
       { source: '/marcas/', destination: '/marcas', permanent: true },
