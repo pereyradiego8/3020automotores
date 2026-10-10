@@ -14,7 +14,11 @@
 - Solo los vehículos en estado `published` aparecen en el catálogo público.
 - El personal autorizado puede editar datos, cambiar el estado y administrar hasta 12 fotos por ficha.
 - Las políticas RLS protegen las tablas; las políticas de Storage permiten lectura pública de las fotos y restringen altas, cambios y bajas a administradores.
-- Quitar una foto de una ficha la elimina de la galería, pero no borra automáticamente el archivo del bucket. Para evitar borrar imágenes que se usan en otras fichas, la limpieza de archivos debe hacerse por separado.
+- Quitar una foto la elimina de la galería y el sistema intenta borrar el archivo correspondiente del bucket. Si Storage no confirma la eliminación, la ficha se actualiza igualmente y el panel informa que el archivo requiere revisión.
+
+## Comprobación de disponibilidad
+
+La ruta `GET /api/health` devuelve `{"status":"ok"}` para que el hosting pueda comprobar que la aplicación responde. Es una comprobación de vida del proceso; no valida conexión con Supabase ni la integridad del inventario.
 
 ## Antes de producción
 
