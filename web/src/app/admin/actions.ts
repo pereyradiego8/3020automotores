@@ -4,6 +4,12 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 
+function optionalText(formData: FormData, field: string, maxLength: number) {
+  const value = String(formData.get(field) || '').trim();
+  if (value.length > maxLength) throw new Error(`El campo ${field} admite hasta ${maxLength} caracteres.`);
+  return value || null;
+}
+
 async function requireAdmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -26,12 +32,12 @@ export async function createVehicle(formData: FormData) {
   if (!slug) throw new Error('El título debe incluir letras o números para generar la URL.');
   const { error } = await supabase.from('vehicles').insert({
     title, slug, make, model, year,
-    price_text: String(formData.get('price') || '').trim() || null,
-    mileage_text: String(formData.get('mileage') || '').trim() || null,
-    body_type: String(formData.get('body_type') || '').trim() || null,
-    fuel: String(formData.get('fuel') || '').trim() || null,
-    transmission: String(formData.get('transmission') || '').trim() || null,
-    description: String(formData.get('description') || '').trim() || null,
+    price_text: optionalText(formData, 'price', 80),
+    mileage_text: optionalText(formData, 'mileage', 80),
+    body_type: optionalText(formData, 'body_type', 80),
+    fuel: optionalText(formData, 'fuel', 80),
+    transmission: optionalText(formData, 'transmission', 80),
+    description: optionalText(formData, 'description', 5000),
     status: 'draft',
   });
   if (error) throw new Error('No se pudo guardar. Revisá si ya existe una ficha con ese título.');
@@ -50,6 +56,7 @@ export async function setVehicleStatus(formData: FormData) {
   if (error) throw new Error('No se pudo actualizar el estado.');
   revalidatePath('/admin');
   revalidatePath('/autos');
+  revalidatePath('/sitemap.xml');
 }
 
 export async function signOut() {
@@ -95,12 +102,12 @@ export async function updateVehicle(formData: FormData) {
   if (!slug) throw new Error('El título debe incluir letras o números para generar la URL.');
   const { error } = await supabase.from('vehicles').update({
     title, slug, make, model, year,
-    price_text: String(formData.get('price') || '').trim() || null,
-    mileage_text: String(formData.get('mileage') || '').trim() || null,
-    body_type: String(formData.get('body_type') || '').trim() || null,
-    fuel: String(formData.get('fuel') || '').trim() || null,
-    transmission: String(formData.get('transmission') || '').trim() || null,
-    description: String(formData.get('description') || '').trim() || null,
+    price_text: optionalText(formData, 'price', 80),
+    mileage_text: optionalText(formData, 'mileage', 80),
+    body_type: optionalText(formData, 'body_type', 80),
+    fuel: optionalText(formData, 'fuel', 80),
+    transmission: optionalText(formData, 'transmission', 80),
+    description: optionalText(formData, 'description', 5000),
   }).eq('id', id);
   if (error) throw new Error('No se pudo actualizar. Revisá si ya existe otra ficha con ese título.');
   revalidatePath('/admin');
@@ -122,7 +129,7 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
   }
 
   const { data: vehicle, error: readError } = await supabase
-    .from('vehicles').select('image_urls').eq('id', vehicleId).maybeSingle();
+    .from('vehicles').select('image_urls,slug').eq('id', vehicleId).maybeSingle();
   if (readError || !vehicle) throw new Error('No se encontró el vehículo.');
   const currentUrls = Array.isArray(vehicle.image_urls) ? vehicle.image_urls as string[] : [];
   if (!currentUrls.includes(imageUrl)) throw new Error('La imagen ya no está en la ficha.');
@@ -133,6 +140,7 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
   const { error: storageError } = await supabase.storage.from('vehicle-images').remove([objectPath]);
   revalidatePath('/admin');
   revalidatePath('/autos');
-  revalidatePath(`/autos/${vehicleId}`);
+  revalidatePath(`/autos/${vehicle.slug}`);
+  revalidatePath('/sitemap.xml');
   return { removedFromStorage: !storageError };
 }
