@@ -99,3 +99,32 @@ export async function updateVehicle(formData: FormData) {
   revalidatePath('/autos');
   redirect('/admin');
 }
+
+export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
+  const supabase = await requireAdmin();
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!baseUrl || !vehicleId || typeof imageUrl !== 'string') {
+    throw new Error('Datos de imagen no válidos.');
+  }
+  const prefix = `${baseUrl.replace(/\\/$/, '')}/storage/v1/object/public/vehicle-images/`;
+  if (!imageUrl.startsWith(prefix)) throw new Error('La imagen no pertenece al almacenamiento de vehículos.');
+  const objectPath = imageUrl.slice(prefix.length);
+  if (!objectPath.startsWith(`${vehicleId}/`) || objectPath.split('/').some((part) => !part || part === '.' || part === '..')) {
+    throw new Error('La imagen no pertenece a este vehículo.');
+  }
+
+  const { data: vehicle, error: readError } = await supabase
+    .from('vehicles').select('image_urls').eq('id', vehicleId).maybeSingle();
+  if (readError || !vehicle) throw new Error('No se encontró el vehículo.');
+  const currentUrls = Array.isArray(vehicle.image_urls) ? vehicle.image_urls as string[] : [];
+  if (!currentUrls.includes(imageUrl)) throw new Error('La imagen ya no está en la ficha.');
+  const nextUrls = currentUrls.filter((url) => url !== imageUrl);
+  const { error: updateError } = await supabase.from('vehicles').update({ image_urls: nextUrls }).eq('id', vehicleId);
+  if (updateError) throw new Error('No se pudo quitar la imagen de la ficha.');
+
+  const { error: storageError } = await supabase.storage.from('vehicle-images').remove([objectPath]);
+  revalidatePath('/admin');
+  revalidatePath('/autos');
+  revalidatePath(`/autos/${vehicleId}`);
+  return { removedFromStorage: !storageError };
+}
