@@ -5,7 +5,7 @@ create table if not exists public.admin_users (user_id uuid primary key referenc
 create table if not exists public.vehicles (id uuid primary key default gen_random_uuid(), title text not null, slug text not null unique, make text not null, model text not null, year integer not null check(year between 1950 and 2100), price_text text, mileage_text text, body_type text, fuel text, transmission text, description text, image_urls text[] not null default '{}', status public.vehicle_status not null default 'draft', created_at timestamptz not null default now(), updated_at timestamptz not null default now());
 create or replace function public.is_inventory_admin() returns boolean language sql stable security definer set search_path=public as $$ select exists(select 1 from public.admin_users where user_id=auth.uid()); $$;
 revoke all on function public.is_inventory_admin() from public;
-grant execute on function public.is_inventory_admin() to authenticated;
+grant execute on function public.is_inventory_admin() to anon, authenticated;
 create or replace function public.set_vehicle_updated_at() returns trigger language plpgsql set search_path=public as $$ begin new.updated_at=now(); return new; end; $$;
 drop trigger if exists vehicles_updated_at on public.vehicles;
 create trigger vehicles_updated_at before update on public.vehicles for each row execute function public.set_vehicle_updated_at();
