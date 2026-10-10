@@ -21,10 +21,10 @@
 | Portada `index.html` | Reconstruida en `web/src/app/page.tsx` | Comparar contenido comercial, enlaces y mensajes para detectar omisiones. |
 | Catálogo `autos.html` | Reconstruido en `web/src/app/autos/page.tsx` con búsqueda/filtros | Mantener; revisar filtros y contenido frente al original. |
 | Fichas de vehículos bajo `autos/<slug>/` | Existe ficha dinámica `/autos/[slug]` | Consolidar todas las fichas en una única fuente; no migrar automáticamente stock/precios antiguos. |
-| Fichas antiguas `index.html@p=ID.html` | Redirección histórica prevista para vehículos; cobertura pendiente de auditar ID por ID | Crear mapa explícito ID → slug/ruta destino, incluidos duplicados y páginas no vehiculares. |
-| Nosotros | No hay ruta pública propia | Migrar el relato institucional, verificando que trayectoria y textos sigan vigentes. |
-| Contacto | No hay ruta pública propia | Crear página de contacto con teléfono, correo, dirección, horarios y enlaces sociales; confirmar todos los datos antes de publicar. |
-| Marcas e índices de marca | No hay ruta pública propia | Decidir si se crea una página de marcas/filtros o si se redirige a catálogo con marca seleccionada. |
+| Fichas antiguas `index.html@p=ID.html` | Redirección histórica prevista para vehículos; cobertura pendiente de auditar ID por ID | Se creó \`docs/mapa-redirecciones-html.md\`; probar todas las reglas en preview y mejorar el mapeo ID → ficha exacta cuando se confirme stock. |
+| Nosotros | Implementada en \`web/src/app/nosotros/page.tsx\` | Revisar el texto institucional con el negocio antes de lanzar. |
+| Contacto | Implementada en \`web/src/app/contacto/page.tsx\` con datos históricos y aviso de verificación | Confirmar teléfonos, correo, dirección y horarios; añadir redes sociales verificadas si corresponde. |
+| Marcas e índices de marca | Implementada en \`web/src/app/marcas/page.tsx\`; los enlaces precargan búsqueda en el catálogo | Probar búsqueda de marcas con inventario real y decidir qué marcas deben mostrarse según stock. |
 | `propuesta/index.html` | Es una propuesta de diseño anterior, no necesariamente contenido oficial | Usarla como referencia visual/conceptual, no copiarla sin comparar con la identidad solicitada. |
 | Feeds, comentarios, `wp-json` y salidas técnicas | No son páginas comerciales para reproducir | No recrearlas como páginas de navegación. Mantener solo lo necesario para compatibilidad o redirecciones. |
 | Fotos, logo y recursos | Muchos recursos siguen dentro del archivo histórico de WordPress | Seleccionar logo/fotos originales y comprobar licencia, calidad y correspondencia antes de incorporarlos a la app nueva. |
@@ -158,9 +158,8 @@ La lista siguiente enumera todos los archivos HTML detectados en el árbol de es
 
 ## Próximos pasos recomendados
 
-1. Añadir páginas nuevas de **Nosotros** y **Contacto**, tras validar datos comerciales.
-2. Decidir el comportamiento de **Marcas** (página dedicada o filtros).
-3. Generar una tabla de redirecciones de todas las URLs antiguas a sus destinos nuevos y probarlas.
-4. Revisar las 15 fichas históricas una por una y confirmar cuáles están realmente en venta.
-5. Auditar las fotos para elegir originales, quitar duplicados de tamaños generados por WordPress y asociar las imágenes correctas.
-6. Mantener este documento como checklist; no borrar recursos hasta cerrar la migración y probar los enlaces.
+1. Validar con el negocio el contenido y los datos de las páginas nuevas **Nosotros**, **Contacto** y **Marcas**.
+2. Probar el mapa inicial de redirecciones de \`docs/mapa-redirecciones-html.md\` en preview y mejorar los destinos exactos de las fichas cuando haya stock confirmado.
+3. Revisar las 15 fichas históricas una por una y confirmar cuáles están realmente en venta.
+4. Auditar las fotos para elegir originales, quitar duplicados de tamaños generados por WordPress y asociar las imágenes correctas.
+5. Mantener este documento como checklist; no borrar recursos hasta cerrar la migración y probar los enlaces.
