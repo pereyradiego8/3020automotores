@@ -1,5 +1,16 @@
+import type { Metadata } from 'next';
 import { getPublishedVehicles } from '@/lib/inventory';
 import VehicleCatalog from './VehicleCatalog';
+
+export const metadata: Metadata = {
+  title: 'Vehículos disponibles',
+  description: 'Explorá el catálogo de 3020 Automotores. Consultá por vehículos publicados y confirmá disponibilidad y condiciones con nuestro equipo.',
+  openGraph: {
+    title: 'Vehículos disponibles | 3020 Automotores',
+    description: 'Explorá el catálogo de 3020 Automotores y consultá por tu próximo vehículo.',
+    type: 'website',
+  },
+};
 
 export default async function AutosPage() {
   const vehicles=await getPublishedVehicles();
