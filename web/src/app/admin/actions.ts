@@ -114,7 +114,7 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
   if (!baseUrl || !vehicleId || typeof imageUrl !== 'string') {
     throw new Error('Datos de imagen no válidos.');
   }
-  const prefix = `${baseUrl.replace(/\\/$/, '')}/storage/v1/object/public/vehicle-images/`;
+  const prefix = `${baseUrl.replace(/\/$/, '')}/storage/v1/object/public/vehicle-images/`;
   if (!imageUrl.startsWith(prefix)) throw new Error('La imagen no pertenece al almacenamiento de vehículos.');
   const objectPath = imageUrl.slice(prefix.length);
   if (!objectPath.startsWith(`${vehicleId}/`) || objectPath.split('/').some((part) => !part || part === '.' || part === '..')) {
