@@ -55,3 +55,19 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect('/admin/login');
 }
+
+export async function saveVehicleImages(vehicleId: string, imageUrls: string[]) {
+  const supabase = await requireAdmin();
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!baseUrl || !vehicleId || !Array.isArray(imageUrls) || imageUrls.length > 12) {
+    throw new Error('Datos de imágenes no válidos.');
+  }
+  const allowedPrefix = `${baseUrl.replace(/\/$/, '')}/storage/v1/object/public/vehicle-images/`;
+  if (imageUrls.some((url) => typeof url !== 'string' || !url.startsWith(allowedPrefix))) {
+    throw new Error('Las imágenes deben pertenecer al almacenamiento de vehículos.');
+  }
+  const { error } = await supabase.from('vehicles').update({ image_urls: imageUrls }).eq('id', vehicleId);
+  if (error) throw new Error('No se pudieron guardar las imágenes.');
+  revalidatePath('/admin');
+  revalidatePath('/autos');
+}
