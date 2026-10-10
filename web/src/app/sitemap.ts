@@ -20,6 +20,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: baseUrl, changeFrequency: 'weekly', priority: 1 },
     { url: `${baseUrl}/autos`, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/nosotros`, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/marcas`, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${baseUrl}/contacto`, changeFrequency: 'monthly', priority: 0.6 },
     ...vehicles.map((vehicle) => ({
       url: `${baseUrl}/autos/${encodeURIComponent(vehicle.slug)}`,
       lastModified: new Date(),
