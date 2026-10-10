@@ -11,7 +11,7 @@ Nueva aplicación independiente de WordPress, construida con Next.js, TypeScript
 - Carga de hasta 12 imágenes por vehículo desde el panel, validación de tipo/tamaño, orden de foto principal, eliminación y limpieza de cargas incompletas.
 - Políticas RLS para limitar el acceso y la escritura del inventario y Storage.
 - Inventario histórico separado para revisión; no se publica automáticamente.
-- Páginas de error, no encontrado y carga; chequeo independiente de TypeScript en CI.
+- Páginas de error, no encontrado y carga; endpoint liviano `GET /api/health` para comprobaciones del hosting; chequeo independiente de TypeScript en CI.
 
 ## Ejecutar localmente
 
