@@ -40,3 +40,7 @@ drop policy if exists "Admins can update vehicle photos" on storage.objects;
 create policy "Admins can update vehicle photos" on storage.objects for update to authenticated using (bucket_id='vehicle-images' and public.is_inventory_admin()) with check (bucket_id='vehicle-images' and public.is_inventory_admin());
 drop policy if exists "Admins can delete vehicle photos" on storage.objects;
 create policy "Admins can delete vehicle photos" on storage.objects for delete to authenticated using (bucket_id='vehicle-images' and public.is_inventory_admin());
+
+-- Keep public inventory and admin inventory queries efficient as stock grows.
+create index if not exists vehicles_public_updated_idx on public.vehicles (updated_at desc) where status = 'published';
+create index if not exists vehicles_admin_updated_idx on public.vehicles (updated_at desc);
