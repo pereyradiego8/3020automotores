@@ -71,3 +71,29 @@ export async function saveVehicleImages(vehicleId: string, imageUrls: string[]) 
   revalidatePath('/admin');
   revalidatePath('/autos');
 }
+
+export async function updateVehicle(formData: FormData) {
+  const supabase = await requireAdmin();
+  const id = String(formData.get('id') || '').trim();
+  const title = String(formData.get('title') || '').trim();
+  const make = String(formData.get('make') || '').trim();
+  const model = String(formData.get('model') || '').trim();
+  const year = Number(formData.get('year'));
+  if (!id || !title || !make || !model || !Number.isInteger(year) || year < 1950 || year > 2100) {
+    throw new Error('Completá título, marca, modelo y año válido.');
+  }
+  const slug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  const { error } = await supabase.from('vehicles').update({
+    title, slug, make, model, year,
+    price_text: String(formData.get('price') || '').trim() || null,
+    mileage_text: String(formData.get('mileage') || '').trim() || null,
+    body_type: String(formData.get('body_type') || '').trim() || null,
+    fuel: String(formData.get('fuel') || '').trim() || null,
+    transmission: String(formData.get('transmission') || '').trim() || null,
+    description: String(formData.get('description') || '').trim() || null,
+  }).eq('id', id);
+  if (error) throw new Error('No se pudo actualizar. Revisá si ya existe otra ficha con ese título.');
+  revalidatePath('/admin');
+  revalidatePath('/autos');
+  redirect('/admin');
+}
