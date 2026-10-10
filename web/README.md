@@ -4,13 +4,14 @@ Nueva aplicación independiente de WordPress, construida con Next.js, TypeScript
 
 ## Funciones implementadas en la rama de propuesta
 
-- Inicio comercial adaptable a móvil y catálogo público con búsqueda y filtro por carrocería.
-- Fichas públicas dinámicas: solo muestran vehículos cuyo estado sea `published`.
+- Inicio comercial adaptable a móvil y catálogo público con búsqueda por marca/modelo/año/combustible/transmisión, filtros combinables y ordenamiento.
+- Fichas públicas dinámicas: solo muestran vehículos cuyo estado sea `published`, con galería de fotos y metadatos para compartir.
 - Acceso privado para el personal con Supabase Auth y lista de administradores autorizados.
 - Alta de vehículos como borrador, edición de datos y estados borrador/publicado/reservado/vendido.
-- Carga de hasta 12 imágenes por vehículo desde el panel, con validación de tipo y tamaño.
+- Carga de hasta 12 imágenes por vehículo desde el panel, validación de tipo/tamaño, orden de foto principal, eliminación y limpieza de cargas incompletas.
 - Políticas RLS para limitar el acceso y la escritura del inventario y Storage.
 - Inventario histórico separado para revisión; no se publica automáticamente.
+- Páginas de error, no encontrado y carga; chequeo independiente de TypeScript en CI.
 
 ## Ejecutar localmente
 
@@ -31,7 +32,7 @@ Abrí http://localhost:3000. Para que funcionen el inicio de sesión, el inventa
 3. Autorizar cada cuenta insertando su UUID en `public.admin_users`; ver [la guía de Supabase](supabase/README.md).
 4. Configurar `.env.local` y verificar que las políticas RLS y Storage estén activas.
 5. Revisar manualmente los vehículos, precios, teléfonos, fotos y datos comerciales. No usar los datos históricos como stock actual sin confirmación.
-6. Ejecutar build y pruebas de navegación con la configuración real.
+6. Ejecutar `npm run typecheck`, `npm run build` y pruebas de navegación con la configuración real.
 7. Configurar `NEXT_PUBLIC_SITE_URL` con la URL pública canónica (URL definitiva del hosting o dominio aprobado); esto habilita el sitemap y su referencia desde `robots.txt`.
 8. Configurar dominio, hosting, revisar las redirecciones desde las URLs antiguas y analítica antes del lanzamiento.
 
