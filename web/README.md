@@ -1,6 +1,16 @@
 # 3020 Automotores — aplicación web
 
-Primera base de la nueva web independiente, con Next.js + TypeScript. Esta aplicación no depende de WordPress.
+Nueva aplicación independiente de WordPress, construida con Next.js, TypeScript y Supabase.
+
+## Funciones implementadas en la rama de propuesta
+
+- Inicio comercial adaptable a móvil y catálogo público con búsqueda y filtro por carrocería.
+- Fichas públicas dinámicas: solo muestran vehículos cuyo estado sea `published`.
+- Acceso privado para el personal con Supabase Auth y lista de administradores autorizados.
+- Alta de vehículos como borrador, edición de datos y estados borrador/publicado/reservado/vendido.
+- Carga de hasta 12 imágenes por vehículo desde el panel, con validación de tipo y tamaño.
+- Políticas RLS para limitar el acceso y la escritura del inventario y Storage.
+- Inventario histórico separado para revisión; no se publica automáticamente.
 
 ## Ejecutar localmente
 
@@ -8,36 +18,20 @@ Requiere Node.js 20.9 o superior.
 
 ```bash
 npm install
+cp .env.example .env.local
 npm run dev
 ```
 
-Abrí http://localhost:3000.
+Abrí http://localhost:3000. Para que funcionen el inicio de sesión, el inventario y la carga de imágenes, completá las variables de entorno con los datos del proyecto Supabase.
 
-## Qué incluye esta primera etapa
+## Configuración obligatoria antes de usar
 
-- Inicio comercial adaptable a móvil.
-- Catálogo de fichas con búsqueda por nombre y filtro por carrocería.
-- Página individual por vehículo, consultada desde el inventario publicado en Supabase.
-- Datos históricos importados para revisión, con advertencias explícitas.
+1. Crear el proyecto Supabase y ejecutar `supabase/migrations/202610100001_inventory.sql` desde SQL Editor.
+2. Crear cuentas del personal en Supabase Auth y desactivar el registro público.
+3. Autorizar cada cuenta insertando su UUID en `public.admin_users`; ver [la guía de Supabase](supabase/README.md).
+4. Configurar `.env.local` y verificar que las políticas RLS y Storage estén activas.
+5. Revisar manualmente los vehículos, precios, teléfonos, fotos y datos comerciales. No usar los datos históricos como stock actual sin confirmación.
+6. Ejecutar build y pruebas de navegación con la configuración real.
+7. Configurar dominio, hosting, metadatos SEO, redirecciones desde las URLs antiguas y analítica antes del lanzamiento.
 
-## Importante antes de publicar
-
-El archivo `src/data/catalogo-historico.json` se conserva solo como fuente de revisión. No se muestra automáticamente en el catálogo público. Las fotos deben cargarse a almacenamiento propio y aprobarse antes del lanzamiento.
-
-## Próxima etapa
-
-1. Revisar y aprobar inventario y fotos.
-2. Configurar Supabase (PostgreSQL, Auth y Storage) mediante variables de entorno; nunca guardar claves privadas en el repositorio.
-3. Crear panel privado `/admin` con permisos, validación y estados borrador/publicado/reservado/vendido.
-4. Conectar el catálogo público solo a vehículos aprobados como publicados.
-5. Completar pruebas, SEO, redirecciones y despliegue.
-
-El panel administrativo y la base de datos todavía no están implementados; no cargar credenciales hasta definir el proyecto y sus políticas de acceso.
-
-## Panel privado y base de datos
-
-Se agregó el primer flujo de acceso del personal, un panel de inventario, carga de vehículos y cambios de estado. Para configurarlo, seguí [`supabase/README.md`](supabase/README.md), ejecutá el SQL de `supabase/migrations/202610100001_inventory.sql` y completá `web/.env.local` con los valores de `web/.env.example`.
-
-Los vehículos nuevos se guardan como borrador. El catálogo público consulta únicamente registros con estado `published`; las fichas históricas no se publican automáticamente. Sin credenciales de Supabase, el catálogo público queda vacío intencionalmente.
-
-La conexión real a Supabase, las pruebas de compilación/navegador, el almacenamiento de imágenes y el despliegue todavía requieren configuración y validación. No publicar hasta probarlos.
+Sin credenciales de Supabase, el catálogo queda vacío intencionalmente. No se debe publicar ni fusionar la propuesta en producción hasta que las pruebas estén verdes y los datos comerciales estén aprobados.
