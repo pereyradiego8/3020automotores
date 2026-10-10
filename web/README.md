@@ -17,12 +17,12 @@ Abrí http://localhost:3000.
 
 - Inicio comercial adaptable a móvil.
 - Catálogo de fichas con búsqueda por nombre y filtro por carrocería.
-- Página individual por vehículo, generada estáticamente.
+- Página individual por vehículo, consultada desde el inventario publicado en Supabase.
 - Datos históricos importados para revisión, con advertencias explícitas.
 
 ## Importante antes de publicar
 
-El archivo `src/data/catalogo-historico.json` proviene de una exportación histórica. Precios, kilometraje, stock y datos de contacto deben validarse con el equipo. Las fichas actuales son referencias y no ofertas activas. Las imágenes apuntan a los archivos públicos de la rama principal del repositorio de origen; hay que migrarlas a almacenamiento propio antes del lanzamiento.
+El archivo `src/data/catalogo-historico.json` se conserva solo como fuente de revisión. No se muestra automáticamente en el catálogo público. Las fotos deben cargarse a almacenamiento propio y aprobarse antes del lanzamiento.
 
 ## Próxima etapa
 
