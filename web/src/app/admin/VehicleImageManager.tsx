@@ -48,7 +48,7 @@ export default function VehicleImageManager({ vehicleId, initialUrls }: { vehicl
     try {
       const result = await removeVehicleImage(vehicleId, url);
       setUrls((current) => current.filter((item) => item !== url));
-      setMessage(result.removedFromStorage ? 'Foto quitada y archivo eliminado.' : 'Foto quitada de la ficha; el archivo quedó almacenado y requiere revisión.');
+      setMessage(result.removedFromListOnly ? 'Foto histórica quitada de la ficha; el archivo original se conserva en el repositorio.' : result.removedFromStorage ? 'Foto quitada y archivo eliminado.' : 'Foto quitada de la ficha; el archivo quedó almacenado y requiere revisión.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'No se pudo quitar la foto.');
     } finally {
