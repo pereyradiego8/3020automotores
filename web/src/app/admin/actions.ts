@@ -98,10 +98,8 @@ export async function updateVehicle(formData: FormData) {
   if (!id || !title || title.length > 120 || !make || make.length > 80 || !model || model.length > 80 || !Number.isInteger(year) || year < 1950 || year > 2100) {
     throw new Error('Completá título, marca, modelo y año válido. El título admite hasta 120 caracteres.');
   }
-  const slug = title.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  if (!slug) throw new Error('El título debe incluir letras o números para generar la URL.');
   const { error } = await supabase.from('vehicles').update({
-    title, slug, make, model, year,
+    title, make, model, year,
     price_text: optionalText(formData, 'price', 80),
     mileage_text: optionalText(formData, 'mileage', 80),
     body_type: optionalText(formData, 'body_type', 80),
@@ -112,6 +110,7 @@ export async function updateVehicle(formData: FormData) {
   if (error) throw new Error('No se pudo actualizar. Revisá si ya existe otra ficha con ese título.');
   revalidatePath('/admin');
   revalidatePath('/autos');
+  revalidatePath('/sitemap.xml');
   redirect('/admin');
 }
 
