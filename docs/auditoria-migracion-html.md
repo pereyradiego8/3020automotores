@@ -11,7 +11,7 @@
 - **No equivalen a 86 páginas nuevas pendientes:** la exportación incluye fichas repetidas en dos formatos de URL, índices de marcas, feeds y salidas técnicas de WordPress.
 - Hay al menos tres páginas comerciales/institucionales que deben migrarse explícitamente a la experiencia nueva: **Nosotros, Marcas y Contacto**. Actualmente no aparecen como rutas públicas propias en `web/src/app`.
 - La portada nueva y el catálogo están reconstruidos, pero el inventario visible depende de Supabase y de vehículos publicados por el equipo.
-- El catálogo histórico de revisión contiene **15 fichas**; sus precios, stock, kilometraje y fotos no deben tratarse como vigentes hasta la confirmación comercial.
+- La revisión inicial estructuró **15 fichas** en `data/catalogo-historico.json`; además se encontraron **24 páginas de vehículos** bajo `autos/`. Se prepararon migraciones para cargar las 24 fichas como borradores con fotos referenciadas y sin precio ni kilometraje público; el equipo debe confirmar stock, precio, kilometraje, especificaciones y fotos antes de publicar.
 - Los HTML y los recursos históricos se mantienen intactos. No se recomienda borrar nada durante esta etapa.
 
 ## Estado por área
