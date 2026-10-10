@@ -5,7 +5,7 @@ Esta guía permite publicar la nueva web sin exponer el inventario histórico ni
 ## 1. Preparar Supabase
 
 1. Crear un proyecto Supabase para producción y guardar las credenciales en el gestor seguro del hosting, nunca en Git.
-2. En **SQL Editor**, ejecutar una sola vez `web/supabase/migrations/202610100001_inventory.sql`.
+2. En **SQL Editor**, ejecutar en orden `web/supabase/migrations/202610100001_inventory.sql`, `web/supabase/migrations/202610100002_import_historical_vehicle_drafts.sql` y `web/supabase/migrations/202610100003_import_additional_vehicle_drafts.sql`. Las dos últimas importan 24 fichas históricas como borradores; no aparecerán públicamente hasta que el equipo confirme los datos y las publique desde el panel.
 3. En **Authentication → Providers / Sign In**, desactivar el registro público de usuarios. Crear manualmente las cuentas individuales del personal autorizado.
 4. En **Authentication → Users**, copiar el UUID de cada usuario autorizado. Ejecutar en SQL Editor una instrucción por usuario, sustituyendo el UUID real:
 
