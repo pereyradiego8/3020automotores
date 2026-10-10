@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { PublicVehicle } from '@/lib/inventory';
 
 function normalize(value: string) {
-  return value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLocaleLowerCase('es-AR').trim();
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es-AR').trim();
 }
 
 export default function VehicleCatalog({ vehicles }: { vehicles: PublicVehicle[] }) {
