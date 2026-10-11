@@ -52,8 +52,33 @@ export async function setVehicleStatus(formData: FormData) {
   const id = String(formData.get('id') || '');
   const status = String(formData.get('status') || '');
   if (!id || !['draft', 'published', 'reserved', 'sold'].includes(status)) throw new Error('Estado no válido.');
-  const { error } = await supabase.from('vehicles').update({ status }).eq('id', id);
-  if (error) throw new Error('No se pudo actualizar el estado.');
+  const { data: updatedVehicle, error } = await supabase
+    .from('vehicles')
+    .update({ status })
+    .eq('id', id)
+    .select('id')
+    .maybeSingle();
+
+  if (error) {
+    // Keep database details in server logs for diagnosis; never expose them to the browser.
+    console.error('No se pudo actualizar el estado del vehículo.', {
+      vehicleId: id,
+      requestedStatus: status,
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+    });
+    throw new Error('No se pudo actualizar el estado. Revisá los permisos y la conexión e intentá nuevamente.');
+  }
+
+  if (!updatedVehicle) {
+    console.error('La actualización del estado no modificó ninguna fila.', {
+      vehicleId: id,
+      requestedStatus: status,
+    });
+    throw new Error('No se aplicaron cambios. Actualizá el inventario y verificá que el vehículo siga disponible para editar.');
+  }
   revalidatePath('/admin');
   revalidatePath('/autos');
   revalidatePath('/sitemap.xml');
