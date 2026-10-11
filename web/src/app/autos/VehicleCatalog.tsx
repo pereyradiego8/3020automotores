@@ -56,7 +56,7 @@ export default function VehicleCatalog({ vehicles, initialMake = '' }: { vehicle
   }, []);
 
   const makes = useMemo(() => Array.from(new Set(vehicles.map((v) => v.make).filter(Boolean))).sort((a, b) => a.localeCompare(b, 'es')), [vehicles]);
-  const types = useMemo(() => Array.from(new Set(vehicles.map((v) => v.body_type).filter((v): v is string => Boolean(v))).sort((a, b) => a.localeCompare(b, 'es')), [vehicles]);
+  const types = useMemo(() => Array.from(new Set(vehicles.map((v) => v.body_type).filter((v): v is string => Boolean(v)))).sort((a, b) => a.localeCompare(b, 'es')), [vehicles]);
   const years = useMemo(() => Array.from(new Set(vehicles.map((v) => v.year))).sort((a, b) => b - a), [vehicles]);
 
   const results = useMemo(() => {
