@@ -27,7 +27,7 @@ Abrí http://localhost:3000. Para que funcionen el inicio de sesión, el inventa
 
 ## Configuración obligatoria antes de usar
 
-1. Crear el proyecto Supabase y ejecutar, en este orden, `supabase/migrations/202610100001_inventory.sql`, `supabase/migrations/202610100002_import_historical_vehicle_drafts.sql` y `supabase/migrations/202610100003_import_additional_vehicle_drafts.sql` desde SQL Editor. Las dos últimas cargan 24 fichas históricas como borradores, no visibles en el catálogo público hasta revisión y publicación manual.
+1. El proyecto Supabase `3020-automotores` ya fue creado en la región de São Paulo. Ejecutar en orden `supabase/migrations/202610100001_inventory.sql`, `supabase/migrations/202610100002_import_historical_vehicle_drafts.sql`, `supabase/migrations/202610100003_import_additional_vehicle_drafts.sql` y `supabase/migrations/202610100004_harden_inventory_admin_function.sql` desde SQL Editor si se prepara otro entorno. En el proyecto creado, estas cuatro migraciones ya se aplicaron. Las dos importaciones cargan 24 fichas históricas como borradores, no visibles en el catálogo público hasta revisión y publicación manual.
 2. Crear cuentas del personal en Supabase Auth y desactivar el registro público.
 3. Autorizar cada cuenta insertando su UUID en `public.admin_users`; ver [la guía de Supabase](supabase/README.md).
 4. Configurar `.env.local` y verificar que las políticas RLS y Storage estén activas.
@@ -37,7 +37,6 @@ Abrí http://localhost:3000. Para que funcionen el inicio de sesión, el inventa
 8. Configurar dominio, hosting, revisar las redirecciones desde las URLs antiguas y analítica antes del lanzamiento.
 
 Sin credenciales de Supabase, el catálogo queda vacío intencionalmente. No se debe publicar ni fusionar la propuesta en producción hasta que las pruebas estén verdes y los datos comerciales estén aprobados.
-
 
 ## SEO técnico
 
