@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
+import { setVehicleStatus } from './actions';
 
 type Vehicle = {
   id: string;
@@ -92,12 +93,7 @@ export default function AdminInventory({ vehicles }: { vehicles: Vehicle[] }) {
               <h3>{v.title}</h3>
               <p><Link className="text-link" href={'/admin/editar/' + v.id}>Editar datos →</Link></p>
               <p className="muted">{v.make} {v.model} · {v.year}</p>
-              <form action="/admin" style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }} onSubmit={(event) => {
-                const select = event.currentTarget.elements.namedItem('status') as HTMLSelectElement | null;
-                if (select?.value === v.status) {
-                  event.preventDefault();
-                }
-              }}>
+              <form action={setVehicleStatus} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                 <input type="hidden" name="id" value={v.id} />
                 <label style={{ flex: '1 1 180px' }}>
                   <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 5 }}>Estado de publicación</span>
