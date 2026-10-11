@@ -1,15 +1,8 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import { setVehicleStatus, signOut } from './actions';
-import VehicleImageManager from './VehicleImageManager';
-
-const labels: Record<string, string> = {
-  draft: 'Borrador',
-  published: 'Publicado',
-  reserved: 'Reservado',
-  sold: 'Vendido',
-};
+import { signOut } from './actions';
+import AdminInventory from './AdminInventory';
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -59,24 +52,7 @@ export default async function AdminPage() {
         ) : !vehicles?.length ? (
           <div className="empty">Todavía no hay vehículos cargados.</div>
         ) : (
-          <div style={{ display: 'grid', gap: 12 }}>
-            {vehicles.map((v) => (
-              <article className="vehicle-card" key={v.id} style={{ padding: 18 }}>
-                <span className="tag">{labels[v.status] || v.status}</span>
-                <h3>{v.title}</h3>
-                <p><Link className="text-link" href={'/admin/editar/' + v.id}>Editar datos →</Link></p>
-                <p className="muted">{v.make} {v.model} · {v.year}</p>
-                <form action={setVehicleStatus} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                  <input type="hidden" name="id" value={v.id} />
-                  <select className="field" name="status" defaultValue={v.status} aria-label={'Estado de ' + v.title}>
-                    {Object.entries(labels).map(([key, label]) => <option value={key} key={key}>{label}</option>)}
-                  </select>
-                  <button className="button secondary" style={{ marginTop: 0 }}>Guardar estado</button>
-                </form>
-                <VehicleImageManager vehicleId={v.id} initialUrls={v.image_urls || []} />
-              </article>
-            ))}
-          </div>
+          <AdminInventory vehicles={vehicles || []} />
         )}
       </div>
     </main>
