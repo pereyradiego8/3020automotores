@@ -5,7 +5,7 @@ import Link from 'next/link';
 import type { PublicVehicle } from '@/lib/inventory';
 
 function normalize(value: string) {
-  return value.normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').toLocaleLowerCase('es-AR').trim();
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLocaleLowerCase('es-AR').trim();
 }
 
 const FALLBACK_BLUE_DOLLAR_SELL_RATE = 1540;
@@ -16,7 +16,7 @@ function comparablePrice(value: string | null, blueDollarRate: number) {
   if (!amountText) return null;
   const amount = Number(amountText);
   if (!Number.isFinite(amount) || amount <= 0) return null;
-  const isUsd = /U\\$D|USD|US\\$/i.test(value);
+  const isUsd = /U\$D|USD|US\$/i.test(value);
   return isUsd ? amount * blueDollarRate : amount;
 }
 
