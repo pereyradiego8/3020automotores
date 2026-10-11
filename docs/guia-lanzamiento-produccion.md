@@ -4,8 +4,8 @@ Esta guía permite publicar la nueva web sin exponer el inventario histórico ni
 
 ## 1. Preparar Supabase
 
-1. Crear un proyecto Supabase para producción y guardar las credenciales en el gestor seguro del hosting, nunca en Git.
-2. En **SQL Editor**, ejecutar en orden `web/supabase/migrations/202610100001_inventory.sql`, `web/supabase/migrations/202610100002_import_historical_vehicle_drafts.sql` y `web/supabase/migrations/202610100003_import_additional_vehicle_drafts.sql`. Las dos últimas importan 24 fichas históricas como borradores; no aparecerán públicamente hasta que el equipo confirme los datos y las publique desde el panel.
+1. El proyecto Supabase `3020-automotores` ya existe en la región de São Paulo. Su URL de proyecto es `https://zoncelsnskpuninitier.supabase.co`. No guardar claves secretas en Git ni compartirlas por chat.
+2. En el proyecto creado ya se aplicaron las cuatro migraciones del repositorio, en orden: `web/supabase/migrations/202610100001_inventory.sql`, `202610100002_import_historical_vehicle_drafts.sql`, `202610100003_import_additional_vehicle_drafts.sql` y `202610100004_harden_inventory_admin_function.sql`. Las dos importaciones cargaron 24 fichas históricas como borradores; no aparecerán públicamente hasta que el equipo confirme los datos y las publique desde el panel.
 3. En **Authentication → Providers / Sign In**, desactivar el registro público de usuarios. Crear manualmente las cuentas individuales del personal autorizado.
 4. En **Authentication → Users**, copiar el UUID de cada usuario autorizado. Ejecutar en SQL Editor una instrucción por usuario, sustituyendo el UUID real:
 
@@ -58,4 +58,4 @@ Después de cargar las variables, ejecutar un nuevo despliegue. No apuntar el do
 
 ## Estado actual
 
-La aplicación y su verificación de compilación están preparadas en una rama de propuesta, pero todavía no se han configurado aquí un proyecto Supabase real, credenciales de producción, el número comercial confirmado, un dominio ni un despliegue. La puesta en producción requiere completar los pasos anteriores y una aprobación explícita del responsable del negocio.
+El proyecto Supabase está creado y la base de datos ya contiene 24 vehículos históricos en estado borrador. Las políticas RLS y el bucket de imágenes están configurados y la revisión de seguridad no informa advertencias pendientes. Todavía falta crear y autorizar al menos una cuenta del personal, configurar las variables de entorno del hosting, verificar el build final y desplegar la web. La puesta en producción requiere una aprobación explícita del responsable del negocio.
