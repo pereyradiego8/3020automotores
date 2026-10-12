@@ -56,3 +56,23 @@
 .admin-inventory-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,240px);gap:12px;margin-bottom:18px;align-items:end}
 .admin-inventory-filters>label{min-width:0}
 @media(max-width:560px){.admin-inventory-filters{grid-template-columns:minmax(0,1fr);gap:10px}.admin-inventory-filters .field{width:100%}}
+
+
+/* Reseñas de clientes */
+.reviews-section{background:#f5f6f7}
+.reviews-summary{display:flex;align-items:center;gap:20px;background:#fff;border:1px solid var(--line);border-radius:7px;padding:22px;margin-bottom:22px}
+.google-mark{font:700 22px Arial,sans-serif;letter-spacing:-1px;color:#4285f4;min-width:90px}
+.reviews-summary strong{display:block;margin:4px 0}
+.reviews-summary p{margin:6px 0 0;font-size:13px}
+.review-stars{color:#e6a323;letter-spacing:2px;white-space:nowrap}
+.reviews-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+.review-card{background:#fff;border:1px solid var(--line);border-radius:7px;padding:20px;min-width:0}
+.review-card-top{display:grid;grid-template-columns:38px 1fr;gap:0 10px;align-items:center}
+.review-avatar{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:#e8edf5;color:#344b6b;font-weight:800}
+.review-card-top strong{display:block;font-size:13px}
+.review-source{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+.review-card-top .review-stars{grid-column:2;margin-top:7px;font-size:14px}
+.review-card p{font-size:13px;line-height:1.75;color:#444b53;margin:16px 0 0}
+.reviews-disclaimer{font-size:11px;color:var(--muted);margin:16px 0 0}
+@media(max-width:760px){.reviews-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reviews-summary{align-items:flex-start;gap:12px;padding:17px}.google-mark{min-width:68px;font-size:19px}}
+@media(max-width:440px){.reviews-grid{grid-template-columns:1fr}.reviews-summary{flex-direction:column}}
