@@ -45,7 +45,7 @@ export default function AdminInventory({ vehicles }: { vehicles: Vehicle[] }) {
 
   return (
     <section aria-label="Administrar inventario">
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(180px, 240px)', gap: 12, marginBottom: 18 }}>
+      <div className="admin-inventory-filters">
         <label>
           <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Buscar vehículo</span>
           <input className="field" type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Marca, modelo, año…" aria-label="Buscar por marca, modelo, título o año" />
