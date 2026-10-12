@@ -10,7 +10,7 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
   if (!user) redirect('/admin/login');
   const { data: admin } = await supabase.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle();
   if (!admin) redirect('/admin');
-  const { data: vehicle, error } = await supabase.from('vehicles').select('id,title,make,model,year,price_text,mileage_text,body_type,fuel,transmission,description').eq('id', id).maybeSingle();
+  const { data: vehicle, error } = await supabase.from('vehicles').select('id,title,make,model,year,price_text,trade_in_price_text,mileage_text,body_type,fuel,transmission,description,features').eq('id', id).maybeSingle();
   if (error || !vehicle) notFound();
 
   return <main className="section"><div className="wrap" style={{ maxWidth: 820 }}>
@@ -23,12 +23,12 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
       <label>Marca *<input className="field" name="make" defaultValue={vehicle.make} required/></label>
       <label>Modelo *<input className="field" name="model" defaultValue={vehicle.model} required/></label>
       <label>Año *<input className="field" name="year" type="number" min="1950" max="2100" defaultValue={vehicle.year} required/></label>
-      <label>Precio<input className="field" name="price" defaultValue={vehicle.price_text||''}/></label>
+      <label>Precio de contado / anticipo<input className="field" name="price" defaultValue={vehicle.price_text||''} placeholder="Ej.: USD 27.500"/></label><label>Precio de permuta<input className="field" name="trade_in_price" defaultValue={vehicle.trade_in_price_text||''} placeholder="Ej.: USD 30.900"/></label>
       <label>Kilometraje<input className="field" name="mileage" defaultValue={vehicle.mileage_text||''}/></label>
       <label>Carrocería<input className="field" name="body_type" defaultValue={vehicle.body_type||''}/></label>
       <label>Combustible<input className="field" name="fuel" defaultValue={vehicle.fuel||''}/></label>
       <label>Transmisión<input className="field" name="transmission" defaultValue={vehicle.transmission||''}/></label>
-      <label style={{ gridColumn: '1 / -1' }}>Descripción<textarea className="field" name="description" rows={5} defaultValue={vehicle.description||''}/></label>
+      <label style={{ gridColumn: '1 / -1' }}>Descripción y condiciones comerciales<textarea className="field" name="description" rows={6} defaultValue={vehicle.description||''} placeholder="Garantía, documentación, entrega, financiación, sucursales y horarios."/></label><label style={{ gridColumn: '1 / -1' }}>Otras características (una por línea)<textarea className="field" name="features" rows={4} defaultValue={(vehicle.features||[]).join('\n')} placeholder={"Interior de cuero\nControl de crucero\nApple CarPlay"}/></label>
       <div><button className="button">Guardar cambios</button></div>
     </form>
   </div></main>;
