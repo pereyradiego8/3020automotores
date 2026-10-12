@@ -3,6 +3,8 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Nosotros',
   description: 'Conocé la historia y la atención de 3020 Automotores en zona sur.',
+  alternates: { canonical: '/nosotros' },
+  openGraph: { url: '/nosotros' },
 };
 
 export default function NosotrosPage() {
