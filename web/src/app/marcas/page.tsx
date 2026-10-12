@@ -3,6 +3,8 @@ import Link from 'next/link';
 export const metadata = {
   title: 'Marcas',
   description: 'Explorá marcas de vehículos y consultá por las unidades publicadas por 3020 Automotores.',
+  alternates: { canonical: '/marcas' },
+  openGraph: { url: '/marcas' },
 };
 
 const brands = [
