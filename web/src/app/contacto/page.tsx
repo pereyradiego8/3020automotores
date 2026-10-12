@@ -14,7 +14,7 @@ export default function ContactoPage() {
     <section className="page-hero"><div className="wrap"><span className="eyebrow">Estamos para ayudarte</span><h1 className="page-title">Hablemos de tu próximo vehículo.</h1><p>Consultanos por modelos, disponibilidad, precios y condiciones. Nuestro equipo puede orientarte con la información de cada unidad.</p></div></section>
     <section className="section"><div className="wrap contact-grid">
       <div className="contact-card"><span className="eyebrow" style={{color:'var(--accent)'}}>Contacto directo</span><h2>Comunicate con nosotros</h2>
-        <p><span className="contact-label">WhatsApp</span><br/><a className="contact-value" href="tel:+5491137303619">+54 9 11 3730-3619</a></p>
+        <p><span className="contact-label">WhatsApp</span><br/><a className="contact-value" href={whatsappUrl} target="_blank" rel="noreferrer">+54 9 11 3730-3619</a></p>
         {whatsappUrl && <p><a className="button" href={whatsappUrl} target="_blank" rel="noreferrer">Escribir por WhatsApp</a></p>}
         <p><span className="contact-label">Teléfono alternativo</span><br/><a className="contact-value" href="tel:+541177071333">11 7707-1333</a></p>
         <p><span className="contact-label">Correo electrónico</span><br/><a className="contact-value" href="mailto:automotores3020@hotmail.com">automotores3020@hotmail.com</a></p>
