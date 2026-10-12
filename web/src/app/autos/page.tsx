@@ -5,9 +5,11 @@ import VehicleCatalog from './VehicleCatalog';
 export const metadata: Metadata = {
   title: 'Vehículos disponibles',
   description: 'Explorá el catálogo de 3020 Automotores. Consultá por vehículos publicados y confirmá disponibilidad y condiciones con nuestro equipo.',
+  alternates: { canonical: '/autos' },
   openGraph: {
     title: 'Vehículos disponibles | 3020 Automotores',
     description: 'Explorá el catálogo de 3020 Automotores y consultá por tu próximo vehículo.',
+    url: '/autos',
     type: 'website',
   },
 };
