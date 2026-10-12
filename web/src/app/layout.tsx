@@ -40,6 +40,11 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
   title: { default: '3020 Automotores | Encontrá tu próximo vehículo', template: '%s | 3020 Automotores' },
   description: 'Conocé el catálogo de 3020 Automotores en Berazategui, Zona Sur de Buenos Aires. Explorá autos usados y 0 km y consultá por WhatsApp.',
+  icons: {
+    icon: 'https://3020automotores.ar/wp-content/uploads/2020/01/aut3020-iso-230x230.png',
+    shortcut: 'https://3020automotores.ar/wp-content/uploads/2020/01/aut3020-iso-230x230.png',
+    apple: 'https://3020automotores.ar/wp-content/uploads/2020/01/aut3020-iso-230x230.png',
+  },
   openGraph: {
     type: 'website',
     locale: 'es_AR',
