@@ -51,3 +51,8 @@
   .page-hero .page-title{letter-spacing:-1.5px}
   .contact-card{padding:20px}
 }
+
+/* Panel de inventario: filtros fluidos en móvil y escritorio */
+.admin-inventory-filters{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,240px);gap:12px;margin-bottom:18px;align-items:end}
+.admin-inventory-filters>label{min-width:0}
+@media(max-width:560px){.admin-inventory-filters{grid-template-columns:minmax(0,1fr);gap:10px}.admin-inventory-filters .field{width:100%}}
