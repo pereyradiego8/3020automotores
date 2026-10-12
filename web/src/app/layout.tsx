@@ -2,19 +2,21 @@ import type { Metadata } from 'next';
 import { getWhatsAppUrl } from '@/lib/contact';
 import './globals.css';
 
-function getMetadataBase(): URL | undefined {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!configured) return undefined;
+const DEFAULT_SITE_URL = 'https://3020automotores.vercel.app';
+
+function getMetadataBase(): URL {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL;
   try {
     const url = new URL(configured);
-    return ['http:', 'https:'].includes(url.protocol) ? url : undefined;
+    return ['http:', 'https:'].includes(url.protocol) ? url : new URL(DEFAULT_SITE_URL);
   } catch {
-    return undefined;
+    return new URL(DEFAULT_SITE_URL);
   }
 }
 
 export const metadata: Metadata = {
   metadataBase: getMetadataBase(),
+  alternates: { canonical: '/' },
   title: { default: '3020 Automotores | Encontrá tu próximo vehículo', template: '%s | 3020 Automotores' },
   description: 'Conocé el catálogo de 3020 Automotores y consultá por tu próximo vehículo.',
   openGraph: {

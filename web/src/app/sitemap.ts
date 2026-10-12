@@ -1,21 +1,23 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedVehicles } from '@/lib/inventory';
 
+const DEFAULT_SITE_URL = 'https://3020automotores.vercel.app';
+
 function getPublicBaseUrl() {
-  const configured = process.env.NEXT_PUBLIC_SITE_URL;
-  if (!configured) return null;
+  const configured = process.env.NEXT_PUBLIC_SITE_URL || DEFAULT_SITE_URL;
   try {
     const url = new URL(configured);
-    if (!['http:', 'https:'].includes(url.protocol) || url.hostname === 'localhost' || url.hostname === '127.0.0.1') return null;
+    if (!['http:', 'https:'].includes(url.protocol) || url.hostname === 'localhost' || url.hostname === '127.0.0.1') {
+      return DEFAULT_SITE_URL;
+    }
     return url.toString().replace(/\/$/, '');
   } catch {
-    return null;
+    return DEFAULT_SITE_URL;
   }
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getPublicBaseUrl();
-  if (!baseUrl) return [];
   const vehicles = await getPublishedVehicles();
   return [
     { url: baseUrl, changeFrequency: 'weekly', priority: 1 },
