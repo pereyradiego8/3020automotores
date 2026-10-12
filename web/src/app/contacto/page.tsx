@@ -4,6 +4,8 @@ import { getWhatsAppUrl } from '@/lib/contact';
 export const metadata = {
   title: 'Contacto',
   description: 'Contactá a 3020 Automotores para consultar por vehículos y atención comercial.',
+  alternates: { canonical: '/contacto' },
+  openGraph: { url: '/contacto' },
 };
 
 export default function ContactoPage() {
