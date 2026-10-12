@@ -33,11 +33,13 @@ export async function createVehicle(formData: FormData) {
   const { error } = await supabase.from('vehicles').insert({
     title, slug, make, model, year,
     price_text: optionalText(formData, 'price', 80),
+    trade_in_price_text: optionalText(formData, 'trade_in_price', 80),
     mileage_text: optionalText(formData, 'mileage', 80),
     body_type: optionalText(formData, 'body_type', 80),
     fuel: optionalText(formData, 'fuel', 80),
     transmission: optionalText(formData, 'transmission', 80),
     description: optionalText(formData, 'description', 5000),
+    features: String(formData.get('features') || '').split('\n').map((item) => item.trim()).filter(Boolean).slice(0, 40),
     status: 'draft',
   });
   if (error) throw new Error('No se pudo guardar. Revisá si ya existe una ficha con ese título.');
@@ -134,11 +136,13 @@ export async function updateVehicle(formData: FormData) {
   const { error } = await supabase.from('vehicles').update({
     title, make, model, year,
     price_text: optionalText(formData, 'price', 80),
+    trade_in_price_text: optionalText(formData, 'trade_in_price', 80),
     mileage_text: optionalText(formData, 'mileage', 80),
     body_type: optionalText(formData, 'body_type', 80),
     fuel: optionalText(formData, 'fuel', 80),
     transmission: optionalText(formData, 'transmission', 80),
     description: optionalText(formData, 'description', 5000),
+    features: String(formData.get('features') || '').split('\n').map((item) => item.trim()).filter(Boolean).slice(0, 40),
   }).eq('id', id);
   if (error) throw new Error('No se pudo actualizar. Revisá si ya existe otra ficha con ese título.');
   revalidatePath('/admin');
