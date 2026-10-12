@@ -9,13 +9,16 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const vehicles = await getPublishedVehicles();
   const vehicle = vehicles.find((item) => item.slug === slug);
-  if (!vehicle) return { title: 'Vehículo no disponible' };
+  if (!vehicle) return { title: 'Vehículo no disponible', robots: { index: false, follow: true } };
+  const canonical = `/autos/${encodeURIComponent(vehicle.slug)}`;
   return {
     title: vehicle.title,
     description: `Consultá por ${vehicle.title} en 3020 Automotores. Confirmá disponibilidad, precio y condiciones con el equipo comercial.`,
+    alternates: { canonical },
     openGraph: {
       title: vehicle.title,
       description: `Consultá por ${vehicle.title} en 3020 Automotores.`,
+      url: canonical,
       images: vehicle.image_urls?.[0] ? [vehicle.image_urls[0]] : [],
       type: 'website',
     },
