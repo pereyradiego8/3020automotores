@@ -7,6 +7,8 @@ import { setVehicleStatusAndSale } from './actions';
 
 type Sale = {
   buyer_name: string | null;
+  buyer_document_type: 'DNI' | 'CUIL' | 'CUIT' | null;
+  buyer_document_number: string | null;
   sale_notes: string | null;
   sold_at: string;
   document_paths: string[] | null;
@@ -37,6 +39,8 @@ export default function VehicleStatusForm({
   const router = useRouter();
   const [status, setStatus] = useState<keyof typeof statusLabels>(initialStatus);
   const [buyerName, setBuyerName] = useState(initialSale?.buyer_name ?? '');
+  const [buyerDocumentType, setBuyerDocumentType] = useState<'DNI' | 'CUIL' | 'CUIT'>(initialSale?.buyer_document_type ?? 'DNI');
+  const [buyerDocumentNumber, setBuyerDocumentNumber] = useState(initialSale?.buyer_document_number ?? '');
   const [saleNotes, setSaleNotes] = useState(initialSale?.sale_notes ?? '');
   const [documentPaths, setDocumentPaths] = useState<string[]>(initialSale?.document_paths ?? []);
   const [files, setFiles] = useState<File[]>([]);
@@ -91,6 +95,8 @@ export default function VehicleStatusForm({
         vehicleId,
         status,
         buyerName,
+        buyerDocumentType,
+        buyerDocumentNumber,
         saleNotes,
         documentPaths: nextPaths,
       });
@@ -124,6 +130,20 @@ export default function VehicleStatusForm({
             Comprador / persona a quien se vendió
             <input className="field" value={buyerName} onChange={(event) => setBuyerName(event.target.value)} maxLength={160} placeholder="Nombre del comprador (opcional)" disabled={busy} />
           </label>
+          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(100px, 0.65fr) minmax(150px, 1fr)', gap: 10 }}>
+            <label>
+              Tipo de documento
+              <select className="field" value={buyerDocumentType} onChange={(event) => setBuyerDocumentType(event.target.value as 'DNI' | 'CUIL' | 'CUIT')} disabled={busy}>
+                <option value="DNI">DNI</option>
+                <option value="CUIL">CUIL</option>
+                <option value="CUIT">CUIT</option>
+              </select>
+            </label>
+            <label>
+              Número de documento
+              <input className="field" value={buyerDocumentNumber} onChange={(event) => setBuyerDocumentNumber(event.target.value)} maxLength={20} placeholder="DNI o CUIL/CUIT" disabled={busy} inputMode="numeric" />
+            </label>
+          </div>
           <label>
             Notas internas
             <textarea className="field" rows={3} value={saleNotes} onChange={(event) => setSaleNotes(event.target.value)} maxLength={2000} placeholder="Observaciones de la operación (opcional)" disabled={busy} />
