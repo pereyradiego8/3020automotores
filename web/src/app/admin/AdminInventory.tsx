@@ -8,9 +8,12 @@ import VehicleStatusForm from './VehicleStatusForm';
 type Sale = {
   vehicle_id: string;
   buyer_name: string | null;
+  buyer_document_type: 'DNI' | 'CUIL' | 'CUIT' | null;
+  buyer_document_number: string | null;
   sale_notes: string | null;
   sold_at: string;
   document_paths: string[] | null;
+  document_links?: { path: string; url: string }[];
 };
 
 type Vehicle = {
@@ -90,6 +93,44 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
           <p>Probá con otra búsqueda o limpiá los filtros.</p>
           <button type="button" className="button secondary" onClick={() => { setSearch(''); setStatus('all'); }} style={{ marginTop: 0 }}>Limpiar búsqueda y filtros</button>
         </div>
+      ) : status === 'sold' ? (
+        <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 10 }}>
+          <table style={{ width: '100%', minWidth: 1050, borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
+            <thead>
+              <tr>
+                {['Vehículo', 'Fecha de venta', 'Comprador', 'Tipo de documento', 'N.º de documento', 'Notas', 'Documentación'].map((heading) => (
+                  <th key={heading} scope="col" style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', background: 'var(--surface)', whiteSpace: 'nowrap' }}>{heading}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((v) => {
+                const sale = sales.find((item) => item.vehicle_id === v.id);
+                return (
+                  <tr key={v.id}>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
+                      <strong>{v.title}</strong>
+                      <div className="muted">{[v.make, v.model, v.year].filter(Boolean).join(' · ')}</div>
+                      <Link className="text-link" href={'/admin/editar/' + v.id}>Editar vehículo</Link>
+                    </td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_name || '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_document_type || '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.buyer_document_number || '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
+                      {sale?.document_links?.length ? (
+                        <div style={{ display: 'grid', gap: 5 }}>
+                          {sale.document_links.map((doc, index) => <a key={doc.path} className="text-link" href={doc.url} target="_blank" rel="noreferrer">Abrir archivo {index + 1}</a>)}
+                        </div>
+                      ) : <span className="muted">Sin archivos</span>}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
       ) : (
         <div style={{ display: 'grid', gap: 12 }}>
           {filtered.map((v) => (
@@ -101,7 +142,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
               <h3>{v.title}</h3>
               <p><Link className="text-link" href={'/admin/editar/' + v.id}>Editar datos →</Link></p>
               <p className="muted">{v.make} {v.model} · {v.year}</p>
-<VehicleStatusForm
+              <VehicleStatusForm
                 vehicleId={v.id}
                 vehicleTitle={v.title}
                 initialStatus={v.status as 'draft' | 'published' | 'reserved' | 'sold'}
