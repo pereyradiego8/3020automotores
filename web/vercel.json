@@ -1,3 +1,3 @@
 {
-  "installCommand": "node -e \"console.log('cache-dir='+ (process.env.npm_config_cache_dir||process.env.NPM_CONFIG_CACHE_DIR||'unset'));console.log('userconfig='+(process.env.NPM_CONFIG_USERCONFIG||'unset'));console.log('globalconfig='+(process.env.NPM_CONFIG_GLOBALCONFIG||'unset'))\" && npm install"
+  "installCommand": "node -p \"process.env.npm_config_cache_dir||process.env.NPM_CONFIG_CACHE_DIR||'unset'\" && npm install"
 }
