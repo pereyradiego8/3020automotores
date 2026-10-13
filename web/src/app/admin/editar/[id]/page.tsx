@@ -15,7 +15,7 @@ export default async function EditVehiclePage({ params }: { params: Promise<{ id
   if (error || !vehicle) notFound();
   const { data: sale } = await supabase
     .from('vehicle_sales')
-    .select('buyer_name,buyer_document_type,buyer_document_number,sale_notes,sold_at,document_paths')
+    .select('buyer_name,buyer_document_type,buyer_document_number,vehicle_plate,sale_notes,sold_at,document_paths')
     .eq('vehicle_id', id)
     .maybeSingle();
 
