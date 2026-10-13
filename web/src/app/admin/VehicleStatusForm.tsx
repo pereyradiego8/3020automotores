@@ -102,7 +102,14 @@ export default function VehicleStatusForm({
       });
       setDocumentPaths(nextPaths);
       setFiles([]);
-      setMessage(status === 'sold' ? 'Venta y estado guardados correctamente.' : 'Estado actualizado correctamente.');
+      if (status !== 'sold') {
+        setBuyerName('');
+        setBuyerDocumentType('DNI');
+        setBuyerDocumentNumber('');
+        setSaleNotes('');
+        setDocumentPaths([]);
+      }
+      setMessage(status === 'sold' ? 'Venta y estado guardados correctamente.' : 'Estado actualizado y datos de venta eliminados correctamente.');
       router.refresh();
     } catch (error) {
       if (uploadedPaths.length) {
