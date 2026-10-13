@@ -116,8 +116,14 @@ export async function saveVehicleImages(vehicleId: string, imageUrls: string[]) 
   }
   const { data: vehicle, error: readError } = await supabase.from('vehicles').select('id').eq('id', vehicleId).maybeSingle();
   if (readError || !vehicle) throw new Error('No se encontró el vehículo.');
-  const { error } = await supabase.from('vehicles').update({ image_urls: imageUrls }).eq('id', vehicleId);
+  const { data: updatedVehicle, error } = await supabase
+    .from('vehicles')
+    .update({ image_urls: imageUrls })
+    .eq('id', vehicleId)
+    .select('id')
+    .maybeSingle();
   if (error) throw new Error('No se pudieron guardar las imágenes.');
+  if (!updatedVehicle) throw new Error('No se aplicaron cambios. Actualizá el inventario y verificá que el vehículo siga disponible para editar.');
   revalidatePath('/admin');
   revalidatePath('/autos');
   revalidatePath('/sitemap.xml');
@@ -180,8 +186,14 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
   const currentUrls = Array.isArray(vehicle.image_urls) ? vehicle.image_urls as string[] : [];
   if (!currentUrls.includes(imageUrl)) throw new Error('La imagen ya no está en la ficha.');
   const nextUrls = currentUrls.filter((url) => url !== imageUrl);
-  const { error: updateError } = await supabase.from('vehicles').update({ image_urls: nextUrls }).eq('id', vehicleId);
+  const { data: updatedVehicle, error: updateError } = await supabase
+    .from('vehicles')
+    .update({ image_urls: nextUrls })
+    .eq('id', vehicleId)
+    .select('id')
+    .maybeSingle();
   if (updateError) throw new Error('No se pudo quitar la imagen de la ficha.');
+  if (!updatedVehicle) throw new Error('No se aplicaron cambios. Actualizá el inventario y verificá que el vehículo siga disponible para editar.');
 
   const { error: storageError } = isStorageImage
     ? await supabase.storage.from('vehicle-images').remove([objectPath])
