@@ -77,6 +77,32 @@ jobs:
           NODE
 
 
+
+      - name: Check unauthenticated admin access
+        env:
+          BASE_URL: https://3020automotores.vercel.app
+        run: |
+          node <<'NODE'
+          (async () => {
+            const response = await fetch(new URL('/admin', process.env.BASE_URL), {
+              redirect: 'manual',
+              signal: AbortSignal.timeout(15000),
+              headers: { 'user-agent': '3020automotores-production-smoke/1.0' },
+            });
+            if (![301, 302, 303, 307, 308].includes(response.status)) {
+              throw new Error(`/admin without a session should redirect, got HTTP ${response.status}`);
+            }
+            const location = response.headers.get('location');
+            if (!location || new URL(location, process.env.BASE_URL).pathname !== '/admin/login') {
+              throw new Error(`/admin should redirect to /admin/login, got ${location || 'no Location header'}`);
+            }
+            console.log('OK unauthenticated /admin redirects to /admin/login');
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
       - name: Check health endpoint
         env:
           BASE_URL: https://3020automotores.vercel.app
