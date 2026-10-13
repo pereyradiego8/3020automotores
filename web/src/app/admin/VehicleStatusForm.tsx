@@ -9,6 +9,7 @@ type Sale = {
   buyer_name: string | null;
   buyer_document_type: 'DNI' | 'CUIL' | 'CUIT' | null;
   buyer_document_number: string | null;
+  vehicle_plate: string | null;
   sale_notes: string | null;
   sold_at: string;
   document_paths: string[] | null;
@@ -41,6 +42,7 @@ export default function VehicleStatusForm({
   const [buyerName, setBuyerName] = useState(initialSale?.buyer_name ?? '');
   const [buyerDocumentType, setBuyerDocumentType] = useState<'DNI' | 'CUIL' | 'CUIT'>(initialSale?.buyer_document_type ?? 'DNI');
   const [buyerDocumentNumber, setBuyerDocumentNumber] = useState(initialSale?.buyer_document_number ?? '');
+  const [vehiclePlate, setVehiclePlate] = useState(initialSale?.vehicle_plate ?? '');
   const [saleNotes, setSaleNotes] = useState(initialSale?.sale_notes ?? '');
   const [documentPaths, setDocumentPaths] = useState<string[]>(initialSale?.document_paths ?? []);
   const [files, setFiles] = useState<File[]>([]);
@@ -51,6 +53,11 @@ export default function VehicleStatusForm({
 
   async function prepareDocumentLink(path: string) {
     setDocumentLink(null);
+    if (status === 'sold' && initialStatus !== 'sold' && (!buyerName.trim() || !buyerDocumentNumber.trim())) {
+      setMessage('Para registrar una venta, completá el nombre y apellido y el número de DNI, CUIL o CUIT.');
+      setBusy(false);
+      return;
+    }
     const supabase = createClient();
     const { data, error } = await supabase.storage.from('vehicle-sale-documents').createSignedUrl(path, 300);
     if (error || !data?.signedUrl) {
@@ -108,6 +115,7 @@ export default function VehicleStatusForm({
         buyerName,
         buyerDocumentType,
         buyerDocumentNumber,
+        vehiclePlate,
         saleNotes,
         documentPaths: nextPaths,
       });
@@ -117,6 +125,7 @@ export default function VehicleStatusForm({
         setBuyerName('');
         setBuyerDocumentType('DNI');
         setBuyerDocumentNumber('');
+        setVehiclePlate('');
         setSaleNotes('');
         setDocumentPaths([]);
       }
@@ -135,8 +144,12 @@ export default function VehicleStatusForm({
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 10, marginTop: 12 }}>
       <label>
-        <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 5 }}>Estado de publicación</span>
-        <select className="field" value={status} onChange={(event) => setStatus(event.target.value as keyof typeof statusLabels)} aria-label={'Estado de ' + vehicleTitle} disabled={busy}>
+        <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 5 }}>{initialStatus === 'sold' ? 'Cambiar estado' : 'Estado de publicación'}</span>
+        <select className="field" value={status} onChange={(event) => {
+          const nextStatus = event.target.value as keyof typeof statusLabels;
+          setStatus(nextStatus);
+          if (initialStatus === 'sold' && nextStatus !== 'sold') setConfirmDeleteOpen(true);
+        }} aria-label={'Estado de ' + vehicleTitle} disabled={busy}>
           {Object.entries(statusLabels).map(([key, label]) => <option value={key} key={key}>{label}</option>)}
         </select>
       </label>
@@ -145,8 +158,8 @@ export default function VehicleStatusForm({
         <section style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 12, display: 'grid', gap: 10 }}>
           <h4 style={{ margin: 0 }}>Datos de la venta (solo administración)</h4>
           <label>
-            Comprador / persona a quien se vendió
-            <input className="field" value={buyerName} onChange={(event) => setBuyerName(event.target.value)} maxLength={160} placeholder="Nombre del comprador (opcional)" disabled={busy} />
+            Nombre y apellido del comprador *
+            <input className="field" value={buyerName} onChange={(event) => setBuyerName(event.target.value)} maxLength={160} placeholder="Nombre y apellido" disabled={busy} required />
           </label>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(100px, 0.65fr) minmax(150px, 1fr)', gap: 10 }}>
             <label>
@@ -158,10 +171,14 @@ export default function VehicleStatusForm({
               </select>
             </label>
             <label>
-              Número de documento
-              <input className="field" value={buyerDocumentNumber} onChange={(event) => setBuyerDocumentNumber(event.target.value)} maxLength={20} placeholder="DNI o CUIL/CUIT" disabled={busy} inputMode="numeric" />
+              Número de documento *
+              <input className="field" value={buyerDocumentNumber} onChange={(event) => setBuyerDocumentNumber(event.target.value)} maxLength={20} placeholder="DNI o CUIL/CUIT" disabled={busy} inputMode="numeric" required />
             </label>
           </div>
+          <label>
+            Patente del vehículo (opcional)
+            <input className="field" value={vehiclePlate} onChange={(event) => setVehiclePlate(event.target.value)} maxLength={12} placeholder="Ej.: AB 123 CD" disabled={busy} />
+          </label>
           <label>
             Notas internas
             <textarea className="field" rows={3} value={saleNotes} onChange={(event) => setSaleNotes(event.target.value)} maxLength={2000} placeholder="Observaciones de la operación (opcional)" disabled={busy} />
@@ -211,13 +228,13 @@ export default function VehicleStatusForm({
             width: '100%', maxWidth: 480, background: 'var(--surface, white)', color: 'var(--foreground, #171717)',
             border: '1px solid var(--border)', borderRadius: 12, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.3)',
           }}>
-            <h3 id="delete-sale-title" style={{ marginTop: 0 }}>¿Eliminar definitivamente los datos de la venta?</h3>
+            <h3 id="delete-sale-title" style={{ marginTop: 0 }}>¿Cambiar el estado de publicación?</h3>
             <p id="delete-sale-description">
-              Si cambiás de <strong>Vendido</strong> a <strong>{statusLabels[status]}</strong>, se eliminarán de la base de datos el nombre y documento del comprador, las notas y el registro de la venta. También se borrarán los archivos de documentación almacenados. Esta acción es permanente y no se puede deshacer.
+              Si cambiás de <strong>Vendido</strong> a <strong>{statusLabels[status]}</strong>, se eliminarán permanentemente de la base de datos el nombre y apellido, documento del comprador, patente, notas y registro de la venta. También se borrarán los archivos de documentación almacenados. Esta acción no se puede deshacer.
             </p>
             <p style={{ fontWeight: 700 }}>¿Querés continuar?</p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
-              <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setConfirmDeleteOpen(false)} disabled={busy}>
+              <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => { setConfirmDeleteOpen(false); setStatus(initialStatus); }} disabled={busy}>
                 Cancelar
               </button>
               <button type="button" className="button" style={{ marginTop: 0 }} onClick={() => void saveChanges()} disabled={busy}>
@@ -228,12 +245,12 @@ export default function VehicleStatusForm({
         </div>
       )}
 
-      <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      {initialStatus !== 'sold' && <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <button className="button secondary" style={{ marginTop: 0 }} disabled={busy}>
           {busy ? 'Guardando…' : 'Guardar estado'}
         </button>
         {busy && <span className="muted" role="status">Guardando cambios y documentación…</span>}
-      </div>
+      </div>}
       {message && <p className="muted" role="status" aria-live="polite" style={{ margin: 0 }}>{message}</p>}
     </form>
   );
