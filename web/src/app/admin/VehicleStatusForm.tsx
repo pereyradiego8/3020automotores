@@ -141,7 +141,7 @@ export default function VehicleStatusForm({
         </select>
       </label>
 
-      {status === 'sold' && (
+      {status === 'sold' && initialStatus !== 'sold' && (
         <section style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 12, display: 'grid', gap: 10 }}>
           <h4 style={{ margin: 0 }}>Datos de la venta (solo administración)</h4>
           <label>
