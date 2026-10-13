@@ -75,3 +75,39 @@ jobs:
             process.exit(1);
           });
           NODE
+
+      - name: Check robots.txt and sitemap.xml
+        env:
+          BASE_URL: https://3020automotores.vercel.app
+        run: |
+          node <<'NODE'
+          const base = process.env.BASE_URL;
+          async function get(path) {
+            const response = await fetch(new URL(path, base), {
+              redirect: 'follow',
+              signal: AbortSignal.timeout(15000),
+              headers: { 'user-agent': '3020automotores-production-smoke/1.0' },
+            });
+            if (!response.ok) throw new Error(`${path}: expected HTTP 2xx, got ${response.status}`);
+            return response.text();
+          }
+          (async () => {
+            const robots = await get('/robots.txt');
+            if (!/Sitemap:\\s*https?:\\/\\//i.test(robots)) {
+              throw new Error('robots.txt does not declare a sitemap URL');
+            }
+            if (!/Disallow:\\s*\\/admin/i.test(robots)) {
+              throw new Error('robots.txt does not disallow admin paths');
+            }
+            console.log('OK /robots.txt declares sitemap and disallows admin paths');
+
+            const sitemap = await get('/sitemap.xml');
+            if (!/<urlset[\\s>]/i.test(sitemap) || !/<loc>https:\\/\\/3020automotores\\.vercel\\.app\\//i.test(sitemap)) {
+              throw new Error('/sitemap.xml is not a valid-looking sitemap for the production domain');
+            }
+            console.log('OK /sitemap.xml contains a urlset and production-domain URLs');
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
