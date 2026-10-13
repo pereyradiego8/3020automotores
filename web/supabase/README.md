@@ -17,7 +17,7 @@ En el proyecto conectado ya se aplicaron las migraciones en orden. Para reconstr
 1. `migrations/202610100001_inventory.sql`
 2. `migrations/202610100002_import_historical_vehicle_drafts.sql`
 3. `migrations/202610100003_import_additional_vehicle_drafts.sql`
-4. `migrations/202610100004_harden_inventory_admin_function.sql`
+4. `migrations/202610100004_harden_inventory_admin_function.sql`\n5. `migrations/20261013190000_vehicle_sales_and_private_documents.sql`
 
 La primera migración crea las tablas, estados, políticas RLS y bucket. Las dos siguientes importan 24 fichas históricas como borradores. La cuarta mueve la función auxiliar de autorización al esquema privado para que no esté expuesta a través de la Data API pública.
 
@@ -55,7 +55,7 @@ El archivo `.env.local` no debe subirse a Git. Para el hosting, cargá las misma
 - Los vehículos nuevos se guardan como borrador.
 - Solo los vehículos en estado `published` aparecen en el catálogo público.
 - El personal autorizado puede editar datos, cambiar el estado y administrar hasta 12 fotos por ficha.
-- Las políticas RLS protegen las tablas; las políticas de Storage permiten lectura pública de las fotos y restringen altas, cambios y bajas a administradores.
+- Las políticas RLS protegen las tablas; las políticas de Storage permiten lectura pública de las fotos y restringen altas, cambios y bajas a administradores.\n- Al marcar un vehículo como vendido se pueden guardar comprador, notas internas y hasta 8 documentos (JPG, PNG, WebP o PDF, 10 MB cada uno). Los datos de venta están en una tabla separada con RLS de administradores; los documentos se guardan en el bucket privado `vehicle-sale-documents` y solo se abren mediante enlaces firmados temporales.
 - Quitar una foto la elimina de la galería y el sistema intenta borrar el archivo correspondiente del bucket. Si Storage no confirma la eliminación, la ficha se actualiza igualmente y el panel informa que el archivo requiere revisión.
 
 ## Comprobación de disponibilidad
