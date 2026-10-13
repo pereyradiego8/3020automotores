@@ -27,7 +27,11 @@ export default async function AdminPage() {
     );
   }
 
-  const { data: sales } = await supabase\n    .from('vehicle_sales')\n    .select('vehicle_id,buyer_name,sale_notes,sold_at,document_paths');\n\n  const { data: vehicles, error } = await supabase
+  const { data: sales } = await supabase
+    .from('vehicle_sales')
+    .select('vehicle_id,buyer_name,sale_notes,sold_at,document_paths');
+
+  const { data: vehicles, error } = await supabase
     .from('vehicles')
     .select('id,title,make,model,year,status,image_urls')
     // Keep a stable alphabetical order; status saves update updated_at and must not move a car.
