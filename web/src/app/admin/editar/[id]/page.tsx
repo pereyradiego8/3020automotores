@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { updateVehicle } from '../../actions';
-import VehicleStatusForm from '../VehicleStatusForm';
+import VehicleStatusForm from '../../VehicleStatusForm';
 
 export default async function EditVehiclePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
