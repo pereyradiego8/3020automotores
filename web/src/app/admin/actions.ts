@@ -133,7 +133,7 @@ export async function updateVehicle(formData: FormData) {
   if (!id || !title || title.length > 120 || !make || make.length > 80 || !model || model.length > 80 || !Number.isInteger(year) || year < 1950 || year > 2100) {
     throw new Error('Completá título, marca, modelo y año válido. El título admite hasta 120 caracteres.');
   }
-  const { error } = await supabase.from('vehicles').update({
+  const { data: updatedVehicle, error } = await supabase.from('vehicles').update({
     title, make, model, year,
     price_text: optionalText(formData, 'price', 80),
     trade_in_price_text: optionalText(formData, 'trade_in_price', 80),
@@ -143,8 +143,9 @@ export async function updateVehicle(formData: FormData) {
     transmission: optionalText(formData, 'transmission', 80),
     description: optionalText(formData, 'description', 5000),
     features: String(formData.get('features') || '').split('\n').map((item) => item.trim()).filter(Boolean).slice(0, 40),
-  }).eq('id', id);
+  }).eq('id', id).select('id').maybeSingle();
   if (error) throw new Error('No se pudo actualizar. Revisá si ya existe otra ficha con ese título.');
+  if (!updatedVehicle) throw new Error('No se aplicaron cambios. Actualizá el inventario y verificá que el vehículo siga disponible para editar.');
   revalidatePath('/admin');
   revalidatePath('/autos');
   revalidatePath('/sitemap.xml');
