@@ -3,7 +3,15 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
-import { setVehicleStatus } from './actions';
+import VehicleStatusForm from './VehicleStatusForm';
+
+type Sale = {
+  vehicle_id: string;
+  buyer_name: string | null;
+  sale_notes: string | null;
+  sold_at: string;
+  document_paths: string[] | null;
+};
 
 type Vehicle = {
   id: string;
@@ -24,7 +32,7 @@ const labels: Record<string, string> = {
 
 const statuses = ['all', 'draft', 'published', 'reserved', 'sold'] as const;
 
-export default function AdminInventory({ vehicles }: { vehicles: Vehicle[] }) {
+export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[]; sales: Sale[] }) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof statuses)[number]>('all');
   const normalizedSearch = search.trim().toLocaleLowerCase('es-AR');
@@ -93,18 +101,12 @@ export default function AdminInventory({ vehicles }: { vehicles: Vehicle[] }) {
               <h3>{v.title}</h3>
               <p><Link className="text-link" href={'/admin/editar/' + v.id}>Editar datos →</Link></p>
               <p className="muted">{v.make} {v.model} · {v.year}</p>
-              <form action={setVehicleStatus} style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                <input type="hidden" name="id" value={v.id} />
-                <label style={{ flex: '1 1 180px' }}>
-                  <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 5 }}>Estado de publicación</span>
-                  <select className="field" name="status" defaultValue={v.status} aria-label={'Estado de ' + v.title}>
-                    {Object.entries(labels).map(([key, label]) => <option value={key} key={key}>{label}</option>)}
-                  </select>
-                </label>
-                <span style={{ display: 'flex', alignItems: 'end' }}>
-                  <button className="button secondary" style={{ marginTop: 0 }}>Guardar estado</button>
-                </span>
-              </form>
+<VehicleStatusForm
+                vehicleId={v.id}
+                vehicleTitle={v.title}
+                initialStatus={v.status as 'draft' | 'published' | 'reserved' | 'sold'}
+                initialSale={sales.find((sale) => sale.vehicle_id === v.id) ?? null}
+              />
               <VehicleImageManager vehicleId={v.id} initialUrls={v.image_urls || []} />
             </article>
           ))}

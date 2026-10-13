@@ -27,6 +27,10 @@ export default async function AdminPage() {
     );
   }
 
+  const { data: sales } = await supabase
+    .from('vehicle_sales')
+    .select('vehicle_id,buyer_name,sale_notes,sold_at,document_paths');
+
   const { data: vehicles, error } = await supabase
     .from('vehicles')
     .select('id,title,make,model,year,status,image_urls')
@@ -52,7 +56,7 @@ export default async function AdminPage() {
         ) : !vehicles?.length ? (
           <div className="empty">Todavía no hay vehículos cargados.</div>
         ) : (
-          <AdminInventory vehicles={vehicles || []} />
+          <AdminInventory vehicles={vehicles || []} sales={sales || []} />
         )}
       </div>
     </main>
