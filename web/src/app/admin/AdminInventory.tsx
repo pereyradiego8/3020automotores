@@ -5,7 +5,15 @@ import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
 
-type Sale = {\n  vehicle_id: string;\n  buyer_name: string | null;\n  sale_notes: string | null;\n  sold_at: string;\n  document_paths: string[] | null;\n};\n\ntype Vehicle = {
+type Sale = {
+  vehicle_id: string;
+  buyer_name: string | null;
+  sale_notes: string | null;
+  sold_at: string;
+  document_paths: string[] | null;
+};
+
+type Vehicle = {
   id: string;
   title: string;
   make: string | null;
