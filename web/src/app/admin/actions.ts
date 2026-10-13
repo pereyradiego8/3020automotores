@@ -114,8 +114,9 @@ export async function saveVehicleImages(vehicleId: string, imageUrls: string[]) 
   })) {
     throw new Error('Las imágenes deben ser únicas y pertenecer a este vehículo o al archivo histórico autorizado.');
   }
-  const { data: vehicle, error: readError } = await supabase.from('vehicles').select('id').eq('id', vehicleId).maybeSingle();
+  const { data: vehicle, error: readError } = await supabase.from('vehicles').select('id,status').eq('id', vehicleId).maybeSingle();
   if (readError || !vehicle) throw new Error('No se encontró el vehículo.');
+  if (vehicle.status === 'sold') throw new Error('Los datos e imágenes de un vehículo vendido no se pueden editar. Cambiá primero su estado de publicación.');
   const { data: updatedVehicle, error } = await supabase
     .from('vehicles')
     .update({ image_urls: imageUrls })
@@ -139,6 +140,9 @@ export async function updateVehicle(formData: FormData) {
   if (!id || !title || title.length > 120 || !make || make.length > 80 || !model || model.length > 80 || !Number.isInteger(year) || year < 1950 || year > 2100) {
     throw new Error('Completá título, marca, modelo y año válido. El título admite hasta 120 caracteres.');
   }
+  const { data: currentVehicle, error: currentVehicleError } = await supabase.from('vehicles').select('id,status').eq('id', id).maybeSingle();
+  if (currentVehicleError || !currentVehicle) throw new Error('No se encontró el vehículo.');
+  if (currentVehicle.status === 'sold') throw new Error('No se pueden editar los datos de un vehículo vendido. Cambiá primero su estado de publicación.');
   const { data: updatedVehicle, error } = await supabase.from('vehicles').update({
     title, make, model, year,
     price_text: optionalText(formData, 'price', 80),
@@ -181,8 +185,9 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
   }
 
   const { data: vehicle, error: readError } = await supabase
-    .from('vehicles').select('image_urls,slug').eq('id', vehicleId).maybeSingle();
+    .from('vehicles').select('image_urls,slug,status').eq('id', vehicleId).maybeSingle();
   if (readError || !vehicle) throw new Error('No se encontró el vehículo.');
+  if (vehicle.status === 'sold') throw new Error('Las imágenes de un vehículo vendido no se pueden editar. Cambiá primero su estado de publicación.');
   const currentUrls = Array.isArray(vehicle.image_urls) ? vehicle.image_urls as string[] : [];
   if (!currentUrls.includes(imageUrl)) throw new Error('La imagen ya no está en la ficha.');
   const nextUrls = currentUrls.filter((url) => url !== imageUrl);
