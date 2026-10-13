@@ -204,3 +204,64 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
   revalidatePath('/sitemap.xml');
   return { removedFromStorage: isStorageImage && !storageError, removedFromListOnly: isLegacyImage };
 }
+
+
+export type VehicleSaleUpdate = {
+  vehicleId: string;
+  status: 'draft' | 'published' | 'reserved' | 'sold';
+  buyerName: string;
+  saleNotes: string;
+  documentPaths: string[];
+};
+
+export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
+  const supabase = await requireAdmin();
+  const { vehicleId, status, buyerName, saleNotes, documentPaths } = input;
+  if (!vehicleId || !['draft', 'published', 'reserved', 'sold'].includes(status)) {
+    throw new Error('Estado o vehículo no válido.');
+  }
+  if (buyerName.trim().length > 160 || saleNotes.trim().length > 2000) {
+    throw new Error('El comprador admite hasta 160 caracteres y las notas hasta 2000.');
+  }
+  if (!Array.isArray(documentPaths) || documentPaths.length > 8 || new Set(documentPaths).size !== documentPaths.length ||
+      documentPaths.some((path) => typeof path !== 'string' || !path.startsWith(`${vehicleId}/`) ||
+        path.split('/').some((part) => !part || part === '.' || part === '..') ||
+        !/^[0-9a-f-]{36}\/[a-zA-Z0-9._-]+$/i.test(path))) {
+    throw new Error('La lista de documentos no es válida.');
+  }
+
+  const { data: vehicle, error: vehicleReadError } = await supabase
+    .from('vehicles').select('id,slug').eq('id', vehicleId).maybeSingle();
+  if (vehicleReadError || !vehicle) throw new Error('No se encontró el vehículo.');
+
+  if (status === 'sold') {
+    const { data: existingSale, error: saleReadError } = await supabase
+      .from('vehicle_sales').select('sold_at').eq('vehicle_id', vehicleId).maybeSingle();
+    if (saleReadError) throw new Error('No se pudo leer el registro de venta.');
+    const { error: saleError } = await supabase.from('vehicle_sales').upsert({
+      vehicle_id: vehicleId,
+      buyer_name: buyerName.trim() || null,
+      sale_notes: saleNotes.trim() || null,
+      document_paths: documentPaths,
+      sold_at: existingSale?.sold_at ?? new Date().toISOString(),
+    }, { onConflict: 'vehicle_id' });
+    if (saleError) {
+      console.error('No se pudo guardar el registro de venta.', { vehicleId, code: saleError.code, message: saleError.message });
+      throw new Error('No se pudieron guardar los datos de la venta. El estado no fue modificado.');
+    }
+  }
+
+  const { data: updatedVehicle, error } = await supabase
+    .from('vehicles').update({ status }).eq('id', vehicleId).select('id').maybeSingle();
+  if (error || !updatedVehicle) {
+    console.error('No se pudo actualizar el estado del vehículo.', {
+      vehicleId, requestedStatus: status, code: error?.code, message: error?.message,
+    });
+    throw new Error('No se pudo actualizar el estado. Revisá los permisos y la conexión e intentá nuevamente.');
+  }
+
+  revalidatePath('/admin');
+  revalidatePath('/autos');
+  revalidatePath('/sitemap.xml');
+  revalidatePath(`/autos/${vehicle.slug}`);
+}
