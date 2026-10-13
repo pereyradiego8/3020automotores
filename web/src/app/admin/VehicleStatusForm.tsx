@@ -212,7 +212,7 @@ export default function VehicleStatusForm({
               }}
             />
             {files.length > 0 && <p className="muted" style={{ fontSize: 12 }}>{files.length} archivo(s) seleccionado(s): {files.map((file) => file.name).join(', ')}</p>}
-          </div>
+          </div>}
         </section>
       )}
 
