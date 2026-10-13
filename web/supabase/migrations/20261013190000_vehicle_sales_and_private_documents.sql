@@ -6,7 +6,6 @@ create table if not exists public.vehicle_sales (
   sold_at timestamptz not null default now(),
   document_paths text[] not null default '{}'::text[],
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now(),
   constraint vehicle_sales_document_count check (cardinality(document_paths) <= 8)
 );
 
