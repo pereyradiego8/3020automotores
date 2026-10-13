@@ -45,6 +45,7 @@ export default function VehicleStatusForm({
   const [documentPaths, setDocumentPaths] = useState<string[]>(initialSale?.document_paths ?? []);
   const [files, setFiles] = useState<File[]>([]);
   const [busy, setBusy] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [documentLink, setDocumentLink] = useState<{ path: string; url: string } | null>(null);
 
@@ -62,6 +63,16 @@ export default function VehicleStatusForm({
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (busy) return;
+    if (initialStatus === 'sold' && status !== 'sold') {
+      setConfirmDeleteOpen(true);
+      return;
+    }
+    await saveChanges();
+  }
+
+  async function saveChanges() {
+    if (busy) return;
+    setConfirmDeleteOpen(false);
     setBusy(true);
     setMessage('');
     setDocumentLink(null);
@@ -183,6 +194,38 @@ export default function VehicleStatusForm({
             {files.length > 0 && <p className="muted" style={{ fontSize: 12 }}>{files.length} archivo(s) seleccionado(s): {files.map((file) => file.name).join(', ')}</p>}
           </div>
         </section>
+      )}
+
+      {confirmDeleteOpen && (
+        <div
+          role="alertdialog"
+          aria-modal="true"
+          aria-labelledby="delete-sale-title"
+          aria-describedby="delete-sale-description"
+          style={{
+            position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.62)',
+            display: 'grid', placeItems: 'center', padding: 20,
+          }}
+        >
+          <section style={{
+            width: '100%', maxWidth: 480, background: 'var(--surface, white)', color: 'var(--foreground, #171717)',
+            border: '1px solid var(--border)', borderRadius: 12, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+          }}>
+            <h3 id="delete-sale-title" style={{ marginTop: 0 }}>¿Eliminar definitivamente los datos de la venta?</h3>
+            <p id="delete-sale-description">
+              Si cambiás de <strong>Vendido</strong> a <strong>{statusLabels[status]}</strong>, se eliminarán de la base de datos el nombre y documento del comprador, las notas y el registro de la venta. También se borrarán los archivos de documentación almacenados. Esta acción es permanente y no se puede deshacer.
+            </p>
+            <p style={{ fontWeight: 700 }}>¿Querés continuar?</p>
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, flexWrap: 'wrap' }}>
+              <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setConfirmDeleteOpen(false)} disabled={busy}>
+                Cancelar
+              </button>
+              <button type="button" className="button" style={{ marginTop: 0 }} onClick={() => void saveChanges()} disabled={busy}>
+                {busy ? 'Eliminando…' : 'Sí, eliminar y cambiar estado'}
+              </button>
+            </div>
+          </section>
+        </div>
       )}
 
       <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
