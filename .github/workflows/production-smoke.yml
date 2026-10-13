@@ -76,6 +76,36 @@ jobs:
           });
           NODE
 
+
+      - name: Check health endpoint
+        env:
+          BASE_URL: https://3020automotores.vercel.app
+        run: |
+          node <<'NODE'
+          (async () => {
+            const response = await fetch(new URL('/api/health', process.env.BASE_URL), {
+              redirect: 'follow',
+              signal: AbortSignal.timeout(15000),
+              headers: { 'user-agent': '3020automotores-production-smoke/1.0' },
+            });
+            if (response.status !== 200) {
+              throw new Error(`/api/health: expected HTTP 200, got ${response.status}`);
+            }
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.toLowerCase().includes('application/json')) {
+              throw new Error(`/api/health: expected JSON, got ${contentType || 'no content-type'}`);
+            }
+            const body = await response.json();
+            if (body.status !== 'ok' || Object.keys(body).length !== 1) {
+              throw new Error('/api/health returned an unexpected or overly detailed payload');
+            }
+            console.log('OK /api/health returns HTTP 200 with minimal JSON');
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
       - name: Check robots.txt and sitemap.xml
         env:
           BASE_URL: https://3020automotores.vercel.app
