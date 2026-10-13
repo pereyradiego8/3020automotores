@@ -217,18 +217,22 @@ export type VehicleSaleUpdate = {
   buyerName: string;
   buyerDocumentType: 'DNI' | 'CUIL' | 'CUIT';
   buyerDocumentNumber: string;
+  vehiclePlate: string;
   saleNotes: string;
   documentPaths: string[];
 };
 
 export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
   const supabase = await requireAdmin();
-  const { vehicleId, status, buyerName, buyerDocumentType, buyerDocumentNumber, saleNotes, documentPaths } = input;
+  const { vehicleId, status, buyerName, buyerDocumentType, buyerDocumentNumber, vehiclePlate, saleNotes, documentPaths } = input;
   if (!vehicleId || !['draft', 'published', 'reserved', 'sold'].includes(status)) {
     throw new Error('Estado o vehículo no válido.');
   }
-  if (buyerName.trim().length > 160 || buyerDocumentNumber.trim().length > 20 || saleNotes.trim().length > 2000 || !['DNI', 'CUIL', 'CUIT'].includes(buyerDocumentType)) {
-    throw new Error('Revisá el nombre, el tipo y número de documento del comprador y las notas.');
+  if (buyerName.trim().length > 160 || buyerDocumentNumber.trim().length > 20 || vehiclePlate.trim().length > 12 || saleNotes.trim().length > 2000 || !['DNI', 'CUIL', 'CUIT'].includes(buyerDocumentType)) {
+    throw new Error('Revisá el nombre, el tipo y número de documento, la patente y las notas.');
+  }
+  if (status === 'sold' && (!buyerName.trim() || !buyerDocumentNumber.trim())) {
+    throw new Error('Para registrar una venta, el nombre y apellido y el número de DNI, CUIL o CUIT son obligatorios.');
   }
   if (!Array.isArray(documentPaths) || documentPaths.length > 8 || new Set(documentPaths).size !== documentPaths.length ||
       documentPaths.some((path) => typeof path !== 'string' || !path.startsWith(`${vehicleId}/`) ||
@@ -250,6 +254,7 @@ export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
       buyer_name: buyerName.trim() || null,
       buyer_document_type: buyerDocumentNumber.trim() ? buyerDocumentType : null,
       buyer_document_number: buyerDocumentNumber.trim() || null,
+      vehicle_plate: vehiclePlate.trim().toUpperCase() || null,
       sale_notes: saleNotes.trim() || null,
       document_paths: documentPaths,
       sold_at: existingSale?.sold_at ?? new Date().toISOString(),
