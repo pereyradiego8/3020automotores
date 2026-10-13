@@ -51,7 +51,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
   const filtered = useMemo(() => vehicles.filter((v) => {
     const matchesStatus = status === 'all' || v.status === status;
     const sale = sales.find((item) => item.vehicle_id === v.id);
-    const searchable = [v.title, v.make, v.model, String(v.year ?? ''), v.status, labels[v.status], sale?.buyer_name, sale?.buyer_document_type, sale?.buyer_document_number, sale?.sale_notes, sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '', ...(sale?.document_paths ?? [])].filter(Boolean).join(' ').toLocaleLowerCase('es-AR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const searchable = [v.title, v.make, v.model, String(v.year ?? ''), v.status, labels[v.status], sale?.buyer_name, sale?.buyer_document_type, sale?.buyer_document_number, sale?.buyer_document_number?.replace(/\\D/g, ''), sale?.sale_notes, sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '', ...(sale?.document_paths ?? [])].filter(Boolean).join(' ').toLocaleLowerCase('es-AR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const matchesSearch = !normalizedSearch || normalizedSearch.split(/\s+/).every((term) => searchable.includes(term));
     return matchesStatus && matchesSearch;
   }), [vehicles, sales, status, normalizedSearch]);
@@ -65,7 +65,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
         </label>
         <label>
           <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Filtrar por estado</span>
-          <select className="field" value={status} onChange={(event) => setStatus(event.target.value as (typeof statuses)[number])} aria-label="Filtrar vehículos por estado">
+          <select className="field" value={status} onChange={(event) => setStatus(event.target.value as (typeof statuses)[number] | 'all')} aria-label="Filtrar vehículos por estado">
             <option value="all">Todos los estados</option>
             <option value="draft">Borradores</option>
             <option value="published">Publicados</option>
