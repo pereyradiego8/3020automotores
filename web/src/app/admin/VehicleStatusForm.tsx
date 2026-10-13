@@ -53,11 +53,6 @@ export default function VehicleStatusForm({
 
   async function prepareDocumentLink(path: string) {
     setDocumentLink(null);
-    if (status === 'sold' && initialStatus !== 'sold' && (!buyerName.trim() || !buyerDocumentNumber.trim())) {
-      setMessage('Para registrar una venta, completá el nombre y apellido y el número de DNI, CUIL o CUIT.');
-      setBusy(false);
-      return;
-    }
     const supabase = createClient();
     const { data, error } = await supabase.storage.from('vehicle-sale-documents').createSignedUrl(path, 300);
     if (error || !data?.signedUrl) {
@@ -83,6 +78,11 @@ export default function VehicleStatusForm({
     setBusy(true);
     setMessage('');
     setDocumentLink(null);
+    if (status === 'sold' && initialStatus !== 'sold' && (!buyerName.trim() || !buyerDocumentNumber.trim())) {
+      setMessage('Para registrar una venta, completá el nombre y apellido y el número de DNI, CUIL o CUIT.');
+      setBusy(false);
+      return;
+    }
     const supabase = createClient();
     const uploadedPaths: string[] = [];
 
