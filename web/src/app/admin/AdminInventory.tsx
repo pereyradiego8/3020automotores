@@ -10,6 +10,7 @@ type Sale = {
   buyer_name: string | null;
   buyer_document_type: 'DNI' | 'CUIL' | 'CUIT' | null;
   buyer_document_number: string | null;
+  vehicle_plate: string | null;
   sale_notes: string | null;
   sold_at: string;
   document_paths: string[] | null;
@@ -37,7 +38,7 @@ const statuses = ['draft', 'published', 'reserved', 'sold'] as const;
 
 export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[]; sales: Sale[] }) {
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<(typeof statuses)[number] | 'all'>('all');
+  const [status, setStatus] = useState<(typeof statuses)[number] | 'all'>('published');
   const normalizedSearch = search.trim().toLocaleLowerCase('es-AR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const counts = useMemo(() => ({
@@ -51,7 +52,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
   const filtered = useMemo(() => vehicles.filter((v) => {
     const matchesStatus = status === 'all' || v.status === status;
     const sale = sales.find((item) => item.vehicle_id === v.id);
-    const searchable = [v.title, v.make, v.model, String(v.year ?? ''), v.status, labels[v.status], sale?.buyer_name, sale?.buyer_document_type, sale?.buyer_document_number, sale?.buyer_document_number?.replace(/\\D/g, ''), sale?.sale_notes, sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '', ...(sale?.document_paths ?? [])].filter(Boolean).join(' ').toLocaleLowerCase('es-AR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const searchable = [v.title, v.make, v.model, String(v.year ?? ''), v.status, labels[v.status], sale?.buyer_name, sale?.buyer_document_type, sale?.buyer_document_number, sale?.buyer_document_number?.replace(/\\D/g, ''), sale?.vehicle_plate, sale?.sale_notes, sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '', ...(sale?.document_paths ?? [])].filter(Boolean).join(' ').toLocaleLowerCase('es-AR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     const matchesSearch = !normalizedSearch || normalizedSearch.split(/\s+/).every((term) => searchable.includes(term));
     return matchesStatus && matchesSearch;
   }), [vehicles, sales, status, normalizedSearch]);
@@ -100,7 +101,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
           <table style={{ width: '100%', minWidth: 1050, borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
             <thead>
               <tr>
-                {['Vehículo', 'Fecha de venta', 'Comprador', 'Tipo de documento', 'N.º de documento', 'Notas', 'Documentación'].map((heading) => (
+                {['Vehículo', 'Fecha de venta', 'Comprador', 'Tipo de documento', 'N.º de documento', 'Patente', 'Notas', 'Documentación'].map((heading) => (
                   <th key={heading} scope="col" style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', background: 'var(--surface)', whiteSpace: 'nowrap' }}>{heading}</th>
                 ))}
               </tr>
@@ -113,12 +114,13 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                       <strong>{v.title}</strong>
                       <div className="muted">{[v.make, v.model, v.year].filter(Boolean).join(' · ')}</div>
-                      <Link className="text-link" href={'/admin/editar/' + v.id}>Editar vehículo</Link>
+                      <div style={{ marginTop: 8 }}><strong style={{ fontSize: 12 }}>Cambiar estado de publicación</strong><VehicleStatusForm vehicleId={v.id} vehicleTitle={v.title} initialStatus="sold" initialSale={sale ?? null} /></div>
                     </td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_name || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_document_type || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.buyer_document_number || '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                       {sale?.document_links?.length ? (
