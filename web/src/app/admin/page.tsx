@@ -29,7 +29,16 @@ export default async function AdminPage() {
 
   const { data: sales } = await supabase
     .from('vehicle_sales')
-    .select('vehicle_id,buyer_name,sale_notes,sold_at,document_paths');
+    .select('vehicle_id,buyer_name,buyer_document_type,buyer_document_number,sale_notes,sold_at,document_paths');
+
+  const salesWithLinks = await Promise.all((sales || []).map(async (sale) => {
+    const paths = Array.isArray(sale.document_paths) ? sale.document_paths : [];
+    const document_links = await Promise.all(paths.map(async (path) => {
+      const { data } = await supabase.storage.from('vehicle-sale-documents').createSignedUrl(path, 3600);
+      return data?.signedUrl ? { path, url: data.signedUrl } : null;
+    }));
+    return { ...sale, document_links: document_links.filter((item): item is { path: string; url: string } => item !== null) };
+  }));
 
   const { data: vehicles, error } = await supabase
     .from('vehicles')
@@ -56,7 +65,7 @@ export default async function AdminPage() {
         ) : !vehicles?.length ? (
           <div className="empty">Todavía no hay vehículos cargados.</div>
         ) : (
-          <AdminInventory vehicles={vehicles || []} sales={sales || []} />
+          <AdminInventory vehicles={vehicles || []} sales={salesWithLinks || []} />
         )}
       </div>
     </main>

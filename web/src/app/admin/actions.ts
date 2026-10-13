@@ -210,18 +210,20 @@ export type VehicleSaleUpdate = {
   vehicleId: string;
   status: 'draft' | 'published' | 'reserved' | 'sold';
   buyerName: string;
+  buyerDocumentType: 'DNI' | 'CUIL' | 'CUIT';
+  buyerDocumentNumber: string;
   saleNotes: string;
   documentPaths: string[];
 };
 
 export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
   const supabase = await requireAdmin();
-  const { vehicleId, status, buyerName, saleNotes, documentPaths } = input;
+  const { vehicleId, status, buyerName, buyerDocumentType, buyerDocumentNumber, saleNotes, documentPaths } = input;
   if (!vehicleId || !['draft', 'published', 'reserved', 'sold'].includes(status)) {
     throw new Error('Estado o vehículo no válido.');
   }
-  if (buyerName.trim().length > 160 || saleNotes.trim().length > 2000) {
-    throw new Error('El comprador admite hasta 160 caracteres y las notas hasta 2000.');
+  if (buyerName.trim().length > 160 || buyerDocumentNumber.trim().length > 20 || saleNotes.trim().length > 2000 || !['DNI', 'CUIL', 'CUIT'].includes(buyerDocumentType)) {
+    throw new Error('Revisá el nombre, el tipo y número de documento del comprador y las notas.');
   }
   if (!Array.isArray(documentPaths) || documentPaths.length > 8 || new Set(documentPaths).size !== documentPaths.length ||
       documentPaths.some((path) => typeof path !== 'string' || !path.startsWith(`${vehicleId}/`) ||
@@ -241,6 +243,8 @@ export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
     const { error: saleError } = await supabase.from('vehicle_sales').upsert({
       vehicle_id: vehicleId,
       buyer_name: buyerName.trim() || null,
+      buyer_document_type: buyerDocumentNumber.trim() ? buyerDocumentType : null,
+      buyer_document_number: buyerDocumentNumber.trim() || null,
       sale_notes: saleNotes.trim() || null,
       document_paths: documentPaths,
       sold_at: existingSale?.sold_at ?? new Date().toISOString(),
