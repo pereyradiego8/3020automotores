@@ -33,7 +33,7 @@ const labels: Record<string, string> = {
   sold: 'Vendido',
 };
 
-const statuses = ['all', 'draft', 'published', 'reserved', 'sold'] as const;
+const statuses = ['draft', 'published', 'reserved', 'sold'] as const;
 
 export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[]; sales: Sale[] }) {
   const [search, setSearch] = useState('');
@@ -76,7 +76,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }} aria-label="Resumen del inventario">
         {statuses.map((key) => (
           <button key={key} type="button" className={status === key ? 'button' : 'button secondary'} onClick={() => setStatus(key)} aria-pressed={status === key} style={{ marginTop: 0, padding: '9px 12px', fontSize: 12 }}>
-            {key === 'all' ? 'Todos' : labels[key]} ({counts[key]})
+            {labels[key]} ({counts[key]})
           </button>
         ))}
       </div>
