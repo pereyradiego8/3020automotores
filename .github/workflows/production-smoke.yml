@@ -76,6 +76,67 @@ jobs:
           });
           NODE
 
+
+
+      - name: Check unauthenticated admin access
+        env:
+          BASE_URL: https://3020automotores.vercel.app
+        run: |
+          node <<'NODE'
+          (async () => {
+            const response = await fetch(new URL('/admin', process.env.BASE_URL), {
+              redirect: 'follow',
+              signal: AbortSignal.timeout(15000),
+              headers: { 'user-agent': '3020automotores-production-smoke/1.0' },
+            });
+            if (response.status !== 200) {
+              throw new Error(`/admin without a session should resolve safely, got HTTP ${response.status}`);
+            }
+            const body = await response.text();
+            const protectedMarkers = ['Cargar vehículo', 'Sesión:', '<h1 class="page-title">Inventario</h1>'];
+            const exposed = protectedMarkers.filter(marker => body.includes(marker));
+            if (exposed.length) {
+              throw new Error(`Unauthenticated /admin response contains protected dashboard markers: ${exposed.join(', ')}`);
+            }
+            if (!body.includes('/admin/login')) {
+              throw new Error('Unauthenticated /admin response does not indicate the login route');
+            }
+            console.log('OK unauthenticated /admin does not render inventory and points to login');
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
+      - name: Check health endpoint
+        env:
+          BASE_URL: https://3020automotores.vercel.app
+        run: |
+          node <<'NODE'
+          (async () => {
+            const response = await fetch(new URL('/api/health', process.env.BASE_URL), {
+              redirect: 'follow',
+              signal: AbortSignal.timeout(15000),
+              headers: { 'user-agent': '3020automotores-production-smoke/1.0' },
+            });
+            if (response.status !== 200) {
+              throw new Error(`/api/health: expected HTTP 200, got ${response.status}`);
+            }
+            const contentType = response.headers.get('content-type') || '';
+            if (!contentType.toLowerCase().includes('application/json')) {
+              throw new Error(`/api/health: expected JSON, got ${contentType || 'no content-type'}`);
+            }
+            const body = await response.json();
+            if (body.status !== 'ok' || Object.keys(body).length !== 1) {
+              throw new Error('/api/health returned an unexpected or overly detailed payload');
+            }
+            console.log('OK /api/health returns HTTP 200 with minimal JSON');
+          })().catch(error => {
+            console.error(error);
+            process.exit(1);
+          });
+          NODE
+
       - name: Check robots.txt and sitemap.xml
         env:
           BASE_URL: https://3020automotores.vercel.app
