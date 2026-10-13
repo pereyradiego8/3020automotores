@@ -50,6 +50,9 @@ export default function VehicleStatusForm({
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [documentLink, setDocumentLink] = useState<{ path: string; url: string } | null>(null);
+  const [showPlate, setShowPlate] = useState(Boolean(initialSale?.vehicle_plate));
+  const [showNotes, setShowNotes] = useState(Boolean(initialSale?.sale_notes));
+  const [showDocuments, setShowDocuments] = useState(Boolean(initialSale?.document_paths?.length));
 
   async function prepareDocumentLink(path: string) {
     setDocumentLink(null);
@@ -144,7 +147,7 @@ export default function VehicleStatusForm({
   return (
     <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 10, marginTop: 12 }}>
       <label>
-        <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 5 }}>{initialStatus === 'sold' ? 'Cambiar estado' : 'Estado de publicación'}</span>
+        <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 5 }}>Cambiar estado de publicación</span>
         <select className="field" value={status} onChange={(event) => {
           const nextStatus = event.target.value as keyof typeof statusLabels;
           setStatus(nextStatus);
@@ -154,9 +157,9 @@ export default function VehicleStatusForm({
         </select>
       </label>
 
-      {status === 'sold' && initialStatus !== 'sold' && (
+      {status === 'sold' && (
         <section style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 12, display: 'grid', gap: 10 }}>
-          <h4 style={{ margin: 0 }}>Datos de la venta (solo administración)</h4>
+          {initialStatus !== 'sold' ? <h4 style={{ margin: 0 }}>Datos de la venta (solo administración)</h4> : <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{!showPlate && <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setShowPlate(true)}>+ Agregar patente</button>}{!showNotes && <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setShowNotes(true)}>+ Agregar notas</button>}{!showDocuments && <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setShowDocuments(true)}>+ Agregar documentación</button>}</div>}
           <label>
             Nombre y apellido del comprador *
             <input className="field" value={buyerName} onChange={(event) => setBuyerName(event.target.value)} maxLength={160} placeholder="Nombre y apellido" disabled={busy} required />
@@ -175,15 +178,15 @@ export default function VehicleStatusForm({
               <input className="field" value={buyerDocumentNumber} onChange={(event) => setBuyerDocumentNumber(event.target.value)} maxLength={20} placeholder="DNI o CUIL/CUIT" disabled={busy} inputMode="numeric" required />
             </label>
           </div>
-          <label>
+          {(initialStatus !== 'sold' || showPlate) && <label>
             Patente del vehículo (opcional)
             <input className="field" value={vehiclePlate} onChange={(event) => setVehiclePlate(event.target.value)} maxLength={12} placeholder="Ej.: AB 123 CD" disabled={busy} />
-          </label>
-          <label>
+          </label>}
+          {(initialStatus !== 'sold' || showNotes) && <label>
             Notas internas
             <textarea className="field" rows={3} value={saleNotes} onChange={(event) => setSaleNotes(event.target.value)} maxLength={2000} placeholder="Observaciones de la operación (opcional)" disabled={busy} />
-          </label>
-          <div>
+          </label>}
+          {(initialStatus !== 'sold' || showDocuments) && <div>
             <strong style={{ fontSize: 13 }}>Documentación ({documentPaths.length}/{maxDocuments})</strong>
             <p className="muted" style={{ fontSize: 12, margin: '4px 0 8px' }}>Imágenes JPG, PNG o WebP y PDF. Máximo 10 MB por archivo. Los archivos son privados.</p>
             {documentPaths.length > 0 && (
@@ -209,7 +212,7 @@ export default function VehicleStatusForm({
               }}
             />
             {files.length > 0 && <p className="muted" style={{ fontSize: 12 }}>{files.length} archivo(s) seleccionado(s): {files.map((file) => file.name).join(', ')}</p>}
-          </div>
+          </div>}
         </section>
       )}
 
@@ -245,9 +248,9 @@ export default function VehicleStatusForm({
         </div>
       )}
 
-      {initialStatus !== 'sold' && <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      {(initialStatus !== 'sold' || status === 'sold') && <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <button className="button secondary" style={{ marginTop: 0 }} disabled={busy}>
-          {busy ? 'Guardando…' : 'Guardar estado'}
+          {busy ? 'Guardando…' : initialStatus === 'sold' ? 'Guardar información opcional' : 'Guardar estado'}
         </button>
         {busy && <span className="muted" role="status">Guardando cambios y documentación…</span>}
       </div>}
