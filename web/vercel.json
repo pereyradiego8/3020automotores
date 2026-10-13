@@ -1,3 +1,0 @@
-{
-  "installCommand": "node -p \"process.env.npm_config_cache_dir||process.env.NPM_CONFIG_CACHE_DIR||'unset'\" && npm install"
-}
