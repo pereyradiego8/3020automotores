@@ -253,6 +253,24 @@ export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
       console.error('No se pudo guardar el registro de venta.', { vehicleId, code: saleError.code, message: saleError.message });
       throw new Error('No se pudieron guardar los datos de la venta. El estado no fue modificado.');
     }
+  } else {
+    // Leaving the sold state permanently clears buyer details and private sale documents.
+    const { data: existingSale, error: saleReadError } = await supabase
+      .from('vehicle_sales').select('document_paths').eq('vehicle_id', vehicleId).maybeSingle();
+    if (saleReadError) throw new Error('No se pudo leer el registro de venta para eliminar sus datos.');
+    const paths = Array.isArray(existingSale?.document_paths) ? existingSale.document_paths : [];
+    if (paths.length) {
+      const { error: storageError } = await supabase.storage.from('vehicle-sale-documents').remove(paths);
+      if (storageError) {
+        console.error('No se pudo eliminar la documentación de la venta.', { vehicleId, message: storageError.message });
+        throw new Error('No se pudieron eliminar los documentos de la venta. El estado no fue modificado.');
+      }
+    }
+    const { error: deleteSaleError } = await supabase.from('vehicle_sales').delete().eq('vehicle_id', vehicleId);
+    if (deleteSaleError) {
+      console.error('No se pudieron eliminar los datos de la venta.', { vehicleId, message: deleteSaleError.message });
+      throw new Error('No se pudieron borrar los datos del comprador. El estado no fue modificado.');
+    }
   }
 
   const { data: updatedVehicle, error } = await supabase
