@@ -31,7 +31,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/contacto`, changeFrequency: 'monthly', priority: 0.6 },
     ...vehicles.map((vehicle) => ({
       url: `${baseUrl}/autos/${encodeURIComponent(vehicle.slug)}`,
-      lastModified: new Date(),
+      lastModified: vehicle.updated_at && !Number.isNaN(Date.parse(vehicle.updated_at))
+        ? new Date(vehicle.updated_at)
+        : undefined,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
     })),
