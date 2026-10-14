@@ -4,6 +4,8 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
+import SaleStatusControl from './SaleStatusControl';
+import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
 
 type Sale = {
   vehicle_id: string;
@@ -114,20 +116,21 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                       <strong>{v.title}</strong>
                       <div className="muted">{[v.make, v.model, v.year].filter(Boolean).join(' · ')}</div>
-                      <div style={{ marginTop: 8 }}><VehicleStatusForm vehicleId={v.id} vehicleTitle={v.title} initialStatus="sold" initialSale={sale ?? null} /></div>
+                      <div style={{ marginTop: 8 }}><SaleStatusControl vehicleId={v.id} vehicleTitle={v.title} sale={sale ?? null} /></div>
                     </td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_name || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_document_type || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.buyer_document_number || '—'}</td>
-                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}</td>
-                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="plate" /></div></td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="notes" /></div></td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                       {sale?.document_links?.length ? (
                         <div style={{ display: 'grid', gap: 5 }}>
                           {sale.document_links.map((doc, index) => <a key={doc.path} className="text-link" href={doc.url} target="_blank" rel="noreferrer">Abrir archivo {index + 1}</a>)}
                         </div>
                       ) : <span className="muted">Sin archivos</span>}
+                      <div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="documents" /></div>
                     </td>
                   </tr>
                 );
