@@ -89,7 +89,109 @@ begin
        or cardinality(v_document_paths) > 8
        or exists (
          select 1 from unnest(v_document_paths) as path
-         where path !~ ('^' || p_vehicle_id::text || '/[a-zA-Z0-9._-]+$')
+         where path is null or path !~ ('^' || p_vehicle_id::text || '/[a-zA-Z0-9._-]+
+       )
+       or (select count(*) from unnest(v_document_paths) as path) <>
+          (select count(distinct path) from unnest(v_document_paths) as path)
+    then
+      raise exception 'Invalid buyer or document data' using errcode = '23514';
+    end if;
+
+    insert into public.vehicle_sales (
+      vehicle_id, buyer_name, buyer_document_type, buyer_document_number,
+      vehicle_plate, sale_notes, document_paths
+    )
+    values (
+      p_vehicle_id, nullif(btrim(p_buyer_name), ''),
+      p_buyer_document_type, nullif(btrim(p_buyer_document_number), ''),
+      nullif(upper(btrim(coalesce(p_vehicle_plate, ''))), ''),
+      nullif(btrim(coalesce(p_sale_notes, '')), ''), v_document_paths
+    )
+    on conflict (vehicle_id) do update set
+      buyer_name = excluded.buyer_name,
+      buyer_document_type = excluded.buyer_document_type,
+      buyer_document_number = excluded.buyer_document_number,
+      vehicle_plate = excluded.vehicle_plate,
+      sale_notes = excluded.sale_notes,
+      document_paths = excluded.document_paths;
+      -- Intentionally do not overwrite original sold_at.
+  else
+    select document_paths into v_old_paths
+    from public.vehicle_sales
+    where vehicle_id = p_vehicle_id
+    for update;
+
+    if found then
+      insert into private.sale_document_cleanup_queue (vehicle_id, object_path)
+      select p_vehicle_id, old_path
+      from unnest(v_old_paths) as old_path
+      on conflict (object_path) do nothing;
+
+      delete from public.vehicle_sales where vehicle_id = p_vehicle_id;
+    end if;
+  end if;
+
+  update public.vehicles set status = p_status where id = p_vehicle_id;
+
+  select coalesce(array_agg(object_path order by queued_at), '{}'::text[])
+  into v_pending_paths
+  from private.sale_document_cleanup_queue
+  where vehicle_id = p_vehicle_id;
+
+  return v_pending_paths;
+end;
+$function$;
+
+revoke all on function public.save_vehicle_sale_atomic(
+  uuid, public.vehicle_status, text, text, text, text, text, text[]
+) from public, anon;
+grant execute on function public.save_vehicle_sale_atomic(
+  uuid, public.vehicle_status, text, text, text, text, text, text[]
+) to authenticated;
+
+create or replace function public.acknowledge_sale_document_cleanup(
+  p_vehicle_id uuid,
+  p_document_paths text[]
+)
+returns void
+language plpgsql
+security invoker
+set search_path = ''
+as $function$
+begin
+  if not private.is_inventory_admin() then
+    raise exception 'Not authorized to administer inventory' using errcode = '42501';
+  end if;
+
+  delete from private.sale_document_cleanup_queue
+  where vehicle_id = p_vehicle_id
+    and object_path = any(coalesce(p_document_paths, '{}'::text[]));
+end;
+$function$;
+
+revoke all on function public.acknowledge_sale_document_cleanup(uuid, text[])
+  from public, anon;
+grant execute on function public.acknowledge_sale_document_cleanup(uuid, text[])
+  to authenticated;
+
+-- Only authorized staff can list retryable Storage paths (no buyer information).
+create or replace function public.list_pending_sale_document_cleanup()
+returns table (vehicle_id uuid, object_path text)
+language sql stable
+security invoker
+set search_path = ''
+as $function$
+  select q.vehicle_id, q.object_path
+  from private.sale_document_cleanup_queue as q
+  where private.is_inventory_admin()
+  order by q.queued_at, q.object_path;
+$function$;
+
+revoke all on function public.list_pending_sale_document_cleanup()
+  from public, anon;
+grant execute on function public.list_pending_sale_document_cleanup()
+  to authenticated;
+)
        )
        or (select count(*) from unnest(v_document_paths) as path) <>
           (select count(distinct path) from unnest(v_document_paths) as path)
