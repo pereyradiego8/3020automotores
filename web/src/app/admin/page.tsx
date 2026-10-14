@@ -27,6 +27,11 @@ export default async function AdminPage() {
     );
   }
 
+  // The pending cleanup queue stores only Storage paths; buyer data stays private.
+  const { data: cleanupRows, error: cleanupReadError } = await supabase.rpc('list_pending_sale_document_cleanup');
+  if (cleanupReadError) console.error('No se pudo leer la cola de limpieza de documentos privados.', { code: cleanupReadError.code });
+  const pendingCleanupCount = Array.isArray(cleanupRows) ? cleanupRows.length : 0;
+
   const { data: sales } = await supabase
     .from('vehicle_sales')
     .select('vehicle_id,buyer_name,buyer_document_type,buyer_document_number,vehicle_plate,sale_notes,sold_at,document_paths');
@@ -65,7 +70,7 @@ export default async function AdminPage() {
         ) : !vehicles?.length ? (
           <div className="empty">Todavía no hay vehículos cargados.</div>
         ) : (
-          <AdminInventory vehicles={vehicles || []} sales={salesWithLinks || []} />
+          <AdminInventory vehicles={vehicles || []} sales={salesWithLinks || []} pendingCleanupCount={pendingCleanupCount} />
         )}
       </div>
     </main>
