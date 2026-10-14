@@ -81,7 +81,7 @@ begin
   if p_status = 'sold' then
     if nullif(btrim(coalesce(p_buyer_name, '')), '') is null
        or nullif(btrim(coalesce(p_buyer_document_number, '')), '') is null
-       or p_buyer_document_type not in ('DNI', 'CUIL', 'CUIT')
+       or coalesce(p_buyer_document_type, '') not in ('DNI', 'CUIL', 'CUIT')
        or char_length(btrim(p_buyer_name)) > 160
        or char_length(btrim(p_buyer_document_number)) > 20
        or char_length(btrim(coalesce(p_vehicle_plate, ''))) > 12
@@ -172,4 +172,22 @@ $function$;
 revoke all on function public.acknowledge_sale_document_cleanup(uuid, text[])
   from public, anon;
 grant execute on function public.acknowledge_sale_document_cleanup(uuid, text[])
+  to authenticated;
+
+-- Only authorized staff can list retryable Storage paths (no buyer information).
+create or replace function public.list_pending_sale_document_cleanup()
+returns table (vehicle_id uuid, object_path text)
+language sql stable
+security invoker
+set search_path = ''
+as $function$
+  select q.vehicle_id, q.object_path
+  from private.sale_document_cleanup_queue as q
+  where private.is_inventory_admin()
+  order by q.queued_at, q.object_path;
+$function$;
+
+revoke all on function public.list_pending_sale_document_cleanup()
+  from public, anon;
+grant execute on function public.list_pending_sale_document_cleanup()
   to authenticated;
