@@ -240,7 +240,7 @@ export default function VehicleStatusForm({
 
       {initialStatus !== 'sold' && <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <button className="button secondary" style={{ marginTop: 0 }} disabled={busy}>
-          {busy ? 'Guardando…' : initialStatus === 'sold' ? 'Guardar información opcional' : 'Guardar estado'}
+          {busy ? 'Guardando…' : 'Guardar estado'}
         </button>
         {busy && <span className="muted" role="status">Guardando cambios y documentación…</span>}
       </div>}
