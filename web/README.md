@@ -36,7 +36,13 @@ Abrí http://localhost:3000. Para que funcionen el inicio de sesión, el inventa
 7. Configurar `NEXT_PUBLIC_SITE_URL` con la URL pública canónica aprobada; esto habilita el sitemap y su referencia desde `robots.txt`.
 8. Antes de promover cambios de inventario o de configuración, comprobar el estado del despliegue y revisar que los datos comerciales sean correctos.
 
-Sin credenciales de Supabase, el catálogo queda vacío intencionalmente.
+Sin credenciales de Supabase, la compilación sigue funcionando, pero las solicitudes del inventario muestran un aviso de indisponibilidad; esto evita confundir problemas de conexión con falta de vehículos.
+
+### Operaciones de ventas atómicas (cambio pendiente de aprobación)
+
+La migración `20261014160000_atomic_vehicle_sales.sql` agrega una función RPC transaccional para registrar ventas y cambiar estados conjuntamente. También crea una cola privada que permite reintentar la eliminación de documentación en Storage después de que la transacción se haya confirmado.
+
+**No aplicar esta migración directamente a producción mientras el PR esté en revisión.** Antes de integrar, probar en una base aislada un registro de venta, una reversión, un fallo inducido y el reintento de limpieza. Cuando se apruebe, coordinar la publicación de la migración y el nuevo código: la versión modificada del panel exige las funciones SQL nuevas y no usa el flujo anterior como alternativa.
 
 ## SEO técnico
 
@@ -44,4 +50,4 @@ La aplicación incluye `sitemap.xml` con el inicio, el catálogo y las fichas pu
 
 ## Contacto de WhatsApp
 
-El número de WhatsApp no se toma automáticamente de la web histórica para evitar enviar consultas a un teléfono desactualizado. Configurá `NEXT_PUBLIC_WHATSAPP_NUMBER` con el número comercial confirmado en formato internacional, solo dígitos (sin `+`, espacios ni guiones), tanto en el entorno local como en el hosting. Si no está configurado o el formato no es válido, el sitio muestra un aviso y no ofrece un enlace de WhatsApp. No cargues números personales sin autorización.
+El número oficial está definido en `src/lib/contact.ts` y se utiliza en los enlaces de WhatsApp del sitio. No se configura mediante `NEXT_PUBLIC_WHATSAPP_NUMBER`. Verificar el número comercial antes de modificarlo.
