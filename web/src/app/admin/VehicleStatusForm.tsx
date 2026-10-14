@@ -157,9 +157,9 @@ export default function VehicleStatusForm({
         </select>
       </label>
 
-      {status === 'sold' && (
+      {status === 'sold' && initialStatus !== 'sold' && (
         <section style={{ border: '1px solid var(--border)', borderRadius: 8, padding: 12, display: 'grid', gap: 10 }}>
-          {initialStatus !== 'sold' ? <h4 style={{ margin: 0 }}>Datos de la venta (solo administración)</h4> : <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>{!showPlate && <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setShowPlate(true)}>+ Agregar patente</button>}{!showNotes && <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setShowNotes(true)}>+ Agregar notas</button>}{!showDocuments && <button type="button" className="button secondary" style={{ marginTop: 0 }} onClick={() => setShowDocuments(true)}>+ Agregar documentación</button>}</div>}
+          <h4 style={{ margin: 0 }}>Datos de la venta (solo administración)</h4>
           <label>
             Nombre y apellido del comprador *
             <input className="field" value={buyerName} onChange={(event) => setBuyerName(event.target.value)} maxLength={160} placeholder="Nombre y apellido" disabled={busy} required />
@@ -178,15 +178,15 @@ export default function VehicleStatusForm({
               <input className="field" value={buyerDocumentNumber} onChange={(event) => setBuyerDocumentNumber(event.target.value)} maxLength={20} placeholder="DNI o CUIL/CUIT" disabled={busy} inputMode="numeric" required />
             </label>
           </div>
-          {(initialStatus !== 'sold' || showPlate) && <label>
+          <label>
             Patente del vehículo (opcional)
             <input className="field" value={vehiclePlate} onChange={(event) => setVehiclePlate(event.target.value)} maxLength={12} placeholder="Ej.: AB 123 CD" disabled={busy} />
-          </label>}
-          {(initialStatus !== 'sold' || showNotes) && <label>
+          </label>
+          <label>
             Notas internas
             <textarea className="field" rows={3} value={saleNotes} onChange={(event) => setSaleNotes(event.target.value)} maxLength={2000} placeholder="Observaciones de la operación (opcional)" disabled={busy} />
-          </label>}
-          {(initialStatus !== 'sold' || showDocuments) && <div>
+          </label>
+          <div>
             <strong style={{ fontSize: 13 }}>Documentación ({documentPaths.length}/{maxDocuments})</strong>
             <p className="muted" style={{ fontSize: 12, margin: '4px 0 8px' }}>Imágenes JPG, PNG o WebP y PDF. Máximo 10 MB por archivo. Los archivos son privados.</p>
             {documentPaths.length > 0 && (
@@ -200,19 +200,9 @@ export default function VehicleStatusForm({
                 ))}
               </ul>
             )}
-            <input
-              className="field"
-              type="file"
-              multiple
-              accept="image/jpeg,image/png,image/webp,application/pdf"
-              disabled={busy || documentPaths.length >= maxDocuments}
-              onChange={(event) => {
-                setFiles(Array.from(event.target.files ?? []));
-                event.currentTarget.value = '';
-              }}
-            />
+            <input className="field" type="file" multiple accept="image/jpeg,image/png,image/webp,application/pdf" disabled={busy || documentPaths.length >= maxDocuments} onChange={(event) => { setFiles(Array.from(event.target.files ?? [])); event.currentTarget.value = ''; }} />
             {files.length > 0 && <p className="muted" style={{ fontSize: 12 }}>{files.length} archivo(s) seleccionado(s): {files.map((file) => file.name).join(', ')}</p>}
-          </div>}
+          </div>
         </section>
       )}
 
@@ -248,7 +238,7 @@ export default function VehicleStatusForm({
         </div>
       )}
 
-      {(initialStatus !== 'sold' || status === 'sold') && <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+      {initialStatus !== 'sold' && <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
         <button className="button secondary" style={{ marginTop: 0 }} disabled={busy}>
           {busy ? 'Guardando…' : initialStatus === 'sold' ? 'Guardar información opcional' : 'Guardar estado'}
         </button>
