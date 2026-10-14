@@ -7,10 +7,50 @@ export type PublicVehicle = {
   status: 'draft' | 'published' | 'reserved' | 'sold';
 };
 
+const PUBLIC_VEHICLE_FIELDS = 'id,title,slug,make,model,year,price_text,trade_in_price_text,mileage_text,body_type,fuel,transmission,description,features,image_urls,status';
+
+export class InventoryUnavailableError extends Error {
+  constructor() {
+    super('No se pudo consultar el catálogo de vehículos.');
+    this.name = 'InventoryUnavailableError';
+  }
+}
+
+function ensureInventoryConfigured() {
+  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+    console.error('Public inventory is unavailable: Supabase environment is missing.');
+    throw new InventoryUnavailableError();
+  }
+}
+
 export async function getPublishedVehicles(): Promise<PublicVehicle[]> {
-  if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) return [];
+  ensureInventoryConfigured();
   const supabase = await createClient();
-  const { data, error } = await supabase.from('vehicles').select('id,title,slug,make,model,year,price_text,trade_in_price_text,mileage_text,body_type,fuel,transmission,description,features,image_urls,status').eq('status','published').order('updated_at',{ascending:false});
-  if (error) { console.error('Unable to load published vehicle inventory'); return []; }
+  const { data, error } = await supabase
+    .from('vehicles')
+    .select(PUBLIC_VEHICLE_FIELDS)
+    .eq('status', 'published')
+    .order('updated_at', { ascending: false });
+  if (error) {
+    console.error('Public vehicle inventory query failed.', { code: error.code });
+    throw new InventoryUnavailableError();
+  }
   return (data || []) as PublicVehicle[];
+}
+
+/** Look up only the requested published vehicle, rather than downloading all stock. */
+export async function getPublishedVehicleBySlug(slug: string): Promise<PublicVehicle | null> {
+  ensureInventoryConfigured();
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('vehicles')
+    .select(PUBLIC_VEHICLE_FIELDS)
+    .eq('status', 'published')
+    .eq('slug', slug)
+    .maybeSingle();
+  if (error) {
+    console.error('Public vehicle detail query failed.', { code: error.code });
+    throw new InventoryUnavailableError();
+  }
+  return (data ?? null) as PublicVehicle | null;
 }
