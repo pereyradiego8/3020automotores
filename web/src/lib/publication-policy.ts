@@ -17,7 +17,7 @@ export function getPublicationIssues(vehicle: PublicationVehicle): string[] {
   if (!vehicle.title?.trim()) issues.push('título');
   if (!vehicle.make?.trim()) issues.push('marca');
   if (!vehicle.model?.trim()) issues.push('modelo');
-  if (!Number.isInteger(vehicle.year) || (vehicle.year ?? 0) < 1950 || (vehicle.year ?? 0) > 2100) {
+  if (!Number.isInteger(vehicle.year ?? NaN) || (vehicle.year ?? 0) < 1950 || (vehicle.year ?? 0) > 2100) {
     issues.push('año válido');
   }
   if (!vehicle.price_text?.trim()) issues.push('precio');
