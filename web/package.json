@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "typecheck": "tsc --noEmit",
-    "test": "tsc src/lib/publication-policy.ts --target ES2020 --module commonjs --skipLibCheck --rootDir src/lib --outDir node_modules/.cache/3020-tests && node --test tests/*.test.mjs"
+    "test": "tsc --ignoreConfig src/lib/publication-policy.ts --target ES2020 --module commonjs --skipLibCheck --rootDir src/lib --outDir node_modules/.cache/3020-tests && node --test tests/*.test.mjs"
   },
   "dependencies": {
     "next": "16.4.0",
