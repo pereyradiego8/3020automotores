@@ -5,6 +5,7 @@ import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
 import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
+import PrivateSaleDocumentLink from './PrivateSaleDocumentLink';
 import { retrySaleDocumentCleanup } from './actions';
 
 type Sale = {
@@ -16,7 +17,6 @@ type Sale = {
   sale_notes: string | null;
   sold_at: string;
   document_paths: string[] | null;
-  document_links?: { path: string; url: string }[];
 };
 
 type Vehicle = {
@@ -173,9 +173,11 @@ export default function AdminInventory({ vehicles, sales, pendingCleanupCount }:
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="plate" /></div></td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
-                      {sale?.document_links?.length ? (
+                      {sale?.document_paths?.length ? (
                         <div style={{ display: 'grid', gap: 5 }}>
-                          {sale.document_links.map((doc, index) => <a key={doc.path} className="text-link" href={doc.url} target="_blank" rel="noreferrer">Abrir archivo {index + 1}</a>)}
+                          {sale.document_paths.map((path, index) => (
+                            <PrivateSaleDocumentLink key={path} path={path} number={index + 1} />
+                          ))}
                         </div>
                       ) : <span className="muted">Sin archivos</span>}
                                           </td>
