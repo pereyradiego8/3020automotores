@@ -20,7 +20,7 @@ export default function ContactoPage() {
         <p><span className="contact-label">Correo electrónico</span><br/><a className="contact-value" href="mailto:automotores3020@hotmail.com">automotores3020@hotmail.com</a></p>
       </div>
       <div className="contact-card"><span className="eyebrow" style={{color:'var(--accent)'}}>Dónde estamos</span><h2>Berazategui, zona sur</h2>
-        <p className="contact-value">Av. Dardo Rocha Nº 826, Berazategui</p>
+        <p className="contact-value"><a href="https://www.google.com/maps/search/?api=1&query=Av.%20Dardo%20Rocha%20826%2C%20B1884WNA%20Berazategui%2C%20Provincia%20de%20Buenos%20Aires" target="_blank" rel="noreferrer">Av. Dardo Rocha Nº 826, Berazategui</a></p>
         <h3>Horarios publicados anteriormente</h3><p>Lunes a viernes: de 8 a 12 h y de 14 a 18 h.</p><p>Sábados: de 8 a 15 h.</p>
         <p className="muted">Consultá por WhatsApp para confirmar los horarios de atención.</p>
         <Link className="button secondary" href="/autos">Ver vehículos</Link>
