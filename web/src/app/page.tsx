@@ -41,12 +41,25 @@ export default async function HomePage() {
 
   return (
     <main>
-      <section className="hero">
-        <div className="wrap">
-          <span className="eyebrow">3020 Automotores</span>
-          <h1>Encontrá el vehículo que va con vos.</h1>
-          <p>Conocé las opciones publicadas, compará modelos y hablá directamente con nuestro equipo.</p>
-          <Link className="button" href="/autos">Explorar vehículos</Link>
+      <section className="hero hero-showcase">
+        <div className="wrap hero-layout">
+          <div className="hero-copy">
+            <span className="eyebrow"><span className="hero-eyebrow-line" />3020 Automotores</span>
+            <h1>Encontrá el vehículo que va con vos.</h1>
+            <p>Conocé las opciones publicadas, compará modelos y hablá directamente con nuestro equipo.</p>
+            <Link className="button hero-button" href="/autos">Explorar vehículos <span aria-hidden="true">→</span></Link>
+            <div className="hero-proof"><span className="hero-proof-dot" /> Atención personalizada <span className="hero-proof-separator">/</span> Multimarcas</div>
+          </div>
+          <div className="hero-visual" aria-label="Vehículos de 3020 Automotores">
+            <div className="hero-glow" />
+            <div className="hero-visual-label"><span>3020</span><small>AUTOMOTORES</small></div>
+            {vehicles[0]?.image_urls?.[0] ? (
+              <img className="hero-car-image" src={vehicles[0].image_urls[0]} alt={vehicles[0].title} />
+            ) : (
+              <div className="hero-car-placeholder"><span className="hero-car-mark">3020</span><span>Encontrá tu próximo vehículo</span></div>
+            )}
+            <div className="hero-visual-caption"><span className="hero-caption-kicker">TU PRÓXIMO AUTO</span><strong>Empieza acá.</strong><span className="hero-caption-arrow">↗</span></div>
+          </div>
         </div>
       </section>
 
