@@ -1,6 +1,10 @@
 import type { MetadataRoute } from 'next';
 import { getPublishedVehicles } from '@/lib/inventory';
 
+// Fetch current published vehicles at request time; do not prerender without
+// Supabase environment variables during GitHub Actions builds.
+export const dynamic = 'force-dynamic';
+
 const DEFAULT_SITE_URL = 'https://3020automotores.vercel.app';
 
 function getPublicBaseUrl() {
