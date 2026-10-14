@@ -263,3 +263,11 @@ body{line-height:1.55}
   .page-hero::after{right:-130px;width:260px;opacity:.5}
   .contact-card{padding:20px}
 }
+
+/* Estado de carga compartido en toda la aplicación */
+.page-loading{display:flex;align-items:center;justify-content:center;gap:14px;min-height:180px}
+.page-loading p{margin:0}
+.page-loading-indicator{width:24px;height:24px;border:3px solid #ff790035;border-top-color:var(--accent);border-radius:50%;animation:page-loading-spin .85s linear infinite}
+@keyframes page-loading-spin{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.page-loading-indicator{animation:none;border-color:var(--accent)}}
+@media(max-width:440px){.site-header .site-nav{gap:3px 12px}.site-header .site-nav a{font-size:12px}.detail-extra-panel ul{grid-template-columns:1fr}}
