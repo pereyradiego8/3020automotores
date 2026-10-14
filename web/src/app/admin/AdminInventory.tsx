@@ -1,9 +1,10 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
+import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
 
 type Sale = {
   vehicle_id: string;
@@ -39,6 +40,28 @@ const statuses = ['draft', 'published', 'reserved', 'sold'] as const;
 export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[]; sales: Sale[] }) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof statuses)[number] | 'all'>('published');
+  const restoredStatus = useRef(false);
+
+  useEffect(() => {
+    try {
+      const saved = window.sessionStorage.getItem('3020-admin-inventory-status');
+      if (saved && (saved === 'all' || statuses.includes(saved as (typeof statuses)[number]))) {
+        setStatus(saved as (typeof statuses)[number] | 'all');
+      }
+    } catch {
+      // La pestaña predeterminada sigue funcionando si el almacenamiento está bloqueado.
+    }
+    restoredStatus.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!restoredStatus.current) return;
+    try {
+      window.sessionStorage.setItem('3020-admin-inventory-status', status);
+    } catch {
+      // La navegación sigue funcionando aunque el almacenamiento esté bloqueado.
+    }
+  }, [status]);
   const normalizedSearch = search.trim().toLocaleLowerCase('es-AR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const counts = useMemo(() => ({
@@ -120,7 +143,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_name || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_document_type || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.buyer_document_number || '—'}</td>
-                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}</td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="plate" /></div></td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                       {sale?.document_links?.length ? (
@@ -128,7 +151,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                           {sale.document_links.map((doc, index) => <a key={doc.path} className="text-link" href={doc.url} target="_blank" rel="noreferrer">Abrir archivo {index + 1}</a>)}
                         </div>
                       ) : <span className="muted">Sin archivos</span>}
-                    </td>
+                                          </td>
                   </tr>
                 );
               })}
