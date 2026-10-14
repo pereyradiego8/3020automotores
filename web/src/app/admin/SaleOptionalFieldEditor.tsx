@@ -98,10 +98,10 @@ export default function SaleOptionalFieldEditor({
       </button>
       {open && (
         <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) setOpen(false); }} style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.58)', display: 'grid', placeItems: 'center', padding: 18 }}>
-          <section role="dialog" aria-modal="true" aria-labelledby={`sale-field-${field}-title`} style={{ width: '100%', maxWidth: 500, maxHeight: '90vh', overflowY: 'auto', background: 'var(--surface, white)', color: 'var(--foreground, #171717)', border: '1px solid var(--border)', borderRadius: 12, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
+          <section role="dialog" aria-modal="true" aria-labelledby={`sale-field-${field}-title`} style={{ width: '100%', maxWidth: 500, maxHeight: 'none', overflow: 'visible', background: 'var(--surface, white)', color: 'var(--foreground, #171717)', border: '1px solid var(--border)', borderRadius: 12, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
             <h3 id={`sale-field-${field}-title`} style={{ marginTop: 0 }}>{fieldCopy[field].title}</h3>
             <form onSubmit={save} style={{ display: 'grid', gap: 14 }}>
-              {field === 'plate' && <label>Patente del vehículo (opcional)<input autoFocus className="field" value={plate} onChange={(event) => setPlate(event.target.value)} maxLength={12} placeholder="Ej.: AB 123 CD" disabled={busy} /></label>}
+              {field === 'plate' && <label><input autoFocus className="field" value={plate} onChange={(event) => setPlate(event.target.value)} maxLength={12} placeholder="Ej.: AB 123 CD" disabled={busy} /></label>}
               {field === 'notes' && <label>Notas internas<textarea autoFocus className="field" rows={5} value={notes} onChange={(event) => setNotes(event.target.value)} maxLength={2000} placeholder="Observaciones de la operación (opcional)" disabled={busy} /></label>}
               {field === 'documents' && <>
                 <p className="muted" style={{ margin: 0, fontSize: 12 }}>Imágenes JPG, PNG o WebP y PDF. Máximo 10 MB por archivo, hasta 8 documentos. Los archivos son privados.</p>
