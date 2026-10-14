@@ -40,6 +40,7 @@ const statuses = ['draft', 'published', 'reserved', 'sold'] as const;
 
 export default function AdminInventory({ vehicles, sales, pendingCleanupCount }: { vehicles: Vehicle[]; sales: Sale[]; pendingCleanupCount: number }) {
   const [pendingCleanup, setPendingCleanup] = useState(pendingCleanupCount);
+  useEffect(() => setPendingCleanup(pendingCleanupCount), [pendingCleanupCount]);
   const [cleanupBusy, setCleanupBusy] = useState(false);
   const [cleanupMessage, setCleanupMessage] = useState('');
   const [search, setSearch] = useState('');
