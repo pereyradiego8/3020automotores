@@ -1,17 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
-import ts from 'typescript';
+import { createRequire } from 'node:module';
 
-// Exercise the actual TypeScript policy using the project's installed compiler,
-// without adding a runtime test dependency or changing the Node.js CI version.
-const source = readFileSync(new URL('../src/lib/publication-policy.ts', import.meta.url), 'utf8');
-const compiled = ts.transpileModule(source, {
-  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2020 },
-}).outputText;
-const { getPublicationIssues } = await import(
-  'data:text/javascript;base64,' + Buffer.from(compiled).toString('base64')
-);
+// npm test compiles the actual TypeScript policy to a temporary ignored directory.
+// This keeps the tests compatible with Node.js 20 and TypeScript 7.
+const require = createRequire(import.meta.url);
+const { getPublicationIssues } = require('../node_modules/.cache/3020-tests/publication-policy.js');
 
 const complete = {
   title: 'Peugeot 2008 2022',
