@@ -10,7 +10,7 @@ export default function VehicleGallery({ title, imageUrls }: { title: string; im
     <img className="detail-image" src={current} alt={`${title} — foto ${active + 1} de ${imageUrls.length}`} width={1280} height={800} fetchPriority="high" decoding="async" />
     {imageUrls.length > 1 && <div aria-label="Fotos del vehículo" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(76px,1fr))', gap: 8, marginTop: 10 }}>
       {imageUrls.map((url, index) => <button key={url} type="button" onClick={() => setActive(index)} aria-label={`Ver foto ${index + 1}`} aria-pressed={active === index} style={{ padding: 0, border: active === index ? '2px solid var(--accent)' : '2px solid transparent', borderRadius: 5, overflow: 'hidden', background: 'var(--paper)', cursor: 'pointer' }}>
-        <img src={url} alt="" loading="lazy" style={{ display: 'block', width: '100%', height: 58, objectFit: 'cover' }} />
+        <img src={url} alt="" loading="lazy" decoding="async" width={160} height={100} style={{ display: 'block', width: '100%', height: 58, objectFit: 'cover' }} />
       </button>)}
     </div>}
     {imageUrls.length > 1 && <p className="muted" style={{ fontSize: 12 }} aria-live="polite">Foto {active + 1} de {imageUrls.length}</p>}
