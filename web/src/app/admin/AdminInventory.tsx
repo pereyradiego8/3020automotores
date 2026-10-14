@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
@@ -40,6 +40,28 @@ const statuses = ['draft', 'published', 'reserved', 'sold'] as const;
 export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[]; sales: Sale[] }) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof statuses)[number] | 'all'>('published');
+  const restoredStatus = useRef(false);
+
+  useEffect(() => {
+    try {
+      const saved = window.sessionStorage.getItem('3020-admin-inventory-status');
+      if (saved && (saved === 'all' || statuses.includes(saved as (typeof statuses)[number]))) {
+        setStatus(saved as (typeof statuses)[number] | 'all');
+      }
+    } catch {
+      // La pestaña predeterminada sigue funcionando si el almacenamiento está bloqueado.
+    }
+    restoredStatus.current = true;
+  }, []);
+
+  useEffect(() => {
+    if (!restoredStatus.current) return;
+    try {
+      window.sessionStorage.setItem('3020-admin-inventory-status', status);
+    } catch {
+      // La navegación sigue funcionando aunque el almacenamiento esté bloqueado.
+    }
+  }, [status]);
   const normalizedSearch = search.trim().toLocaleLowerCase('es-AR').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
   const counts = useMemo(() => ({
