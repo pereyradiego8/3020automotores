@@ -76,3 +76,13 @@
 .reviews-disclaimer{font-size:11px;color:var(--muted);margin:16px 0 0}
 @media(max-width:760px){.reviews-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.reviews-summary{align-items:flex-start;gap:12px;padding:17px}.google-mark{min-width:68px;font-size:19px}}
 @media(max-width:440px){.reviews-grid{grid-template-columns:1fr}.reviews-summary{flex-direction:column}}
+
+
+/* Ajustes de reseñas y ubicación en el bloque de contacto */
+.reviews-section{padding-bottom:28px}
+.contact-section{padding-top:28px}
+.contact-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:stretch}
+.contact-layout .contact{min-width:0}
+.contact-map{min-height:320px;overflow:hidden;border:1px solid var(--line);border-radius:7px;background:#e9ecef}
+.contact-map iframe{display:block;width:100%;height:100%;min-height:320px;border:0}
+@media(max-width:760px){.contact-layout{grid-template-columns:minmax(0,1fr);gap:18px}.contact-map,.contact-map iframe{min-height:280px}}
