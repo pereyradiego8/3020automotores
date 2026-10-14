@@ -88,7 +88,7 @@ export default async function HomePage() {
                 <article className="vehicle-card" key={v.id}>
                   <Link href={'/autos/' + v.slug}>
                     {v.image_urls?.[0] ? (
-                      <img className="vehicle-image" src={v.image_urls[0]} alt={v.title} width={640} height={360} loading="lazy" decoding="async" />
+                      <Image className="vehicle-image" src={v.image_urls[0]} alt={v.title} width={640} height={360} sizes="(max-width: 440px) 100vw, (max-width: 760px) 50vw, 33vw" quality={75} />
                     ) : (
                       <div className="vehicle-image" style={{ display: 'grid', placeItems: 'center', color: 'var(--muted)' }}>3020 Automotores</div>
                     )}
