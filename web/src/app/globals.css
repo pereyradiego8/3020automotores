@@ -109,7 +109,7 @@
 .hero-visual-label{position:absolute;top:8%;right:6%;display:flex;flex-direction:column;align-items:flex-end;color:#fff;line-height:.9;font-weight:800;letter-spacing:1px;text-shadow:0 2px 16px #000}
 .hero-visual-label span{font-size:25px;color:#ff7900}
 .hero-visual-label small{font-size:10px;letter-spacing:2px;margin-top:7px}
-.hero-car-image{display:block;width:112%;max-width:none;max-height:390px;object-fit:contain;filter:drop-shadow(0 22px 22px #0009);transform:translate(-2%,4%);mask-image:linear-gradient(to bottom,black 0%,black 78%,transparent 100%)}
+.hero-car-image{display:block;width:112%;max-width:none;max-height:390px;object-fit:contain;filter:drop-shadow(0 22px 22px #0009);transform:translate(-2%,4%)}
 .hero-car-placeholder{width:92%;min-height:265px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;border-radius:48% 8px 8px 8px;background:linear-gradient(135deg,#2a2d30,#111315);border:1px solid #ff790055;color:#d7dbe0;font-size:13px;letter-spacing:1px}
 .hero-car-mark{font:800 64px Manrope,sans-serif;color:#ff7900;letter-spacing:-5px}
 .hero-visual-caption{position:absolute;left:4%;bottom:1%;display:flex;flex-direction:column;gap:4px;padding:13px 17px;border-left:2px solid #ff7900;background:linear-gradient(90deg,#171b20dd,transparent);color:#fff}
