@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
-import SaleStatusControl from './SaleStatusControl';
+import VehicleStatusForm from './VehicleStatusForm';
 import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
 
 type Sale = {
@@ -115,7 +115,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                       <strong>{v.title}</strong>
                       <div className="muted">{[v.make, v.model, v.year].filter(Boolean).join(' · ')}</div>
-                      <div style={{ marginTop: 8 }}><SaleStatusControl vehicleId={v.id} vehicleTitle={v.title} sale={sale ?? null} /></div>
+                      <div style={{ marginTop: 8 }}><VehicleStatusForm vehicleId={v.id} vehicleTitle={v.title} initialStatus="sold" initialSale={sale ?? null} /></div>
                     </td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.sold_at ? new Date(sale.sold_at).toLocaleDateString('es-AR') : '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_name || '—'}</td>
