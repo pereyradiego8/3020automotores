@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getPublishedVehicles } from '@/lib/inventory';
+import { getPublishedVehicles, type PublicVehicle } from '@/lib/inventory';
 import { getWhatsAppUrl } from '@/lib/contact';
 
 const googleReviews = [
@@ -36,7 +36,13 @@ const googleReviews = [
 ];
 
 export default async function HomePage() {
-  const vehicles = await getPublishedVehicles();
+  let vehicles: PublicVehicle[] = [];
+  let inventoryUnavailable = false;
+  try {
+    vehicles = await getPublishedVehicles();
+  } catch {
+    inventoryUnavailable = true;
+  }
   const whatsappUrl = getWhatsAppUrl();
 
   return (
@@ -64,12 +70,18 @@ export default async function HomePage() {
           <div className="section-head">
             <div>
               <span className="eyebrow" style={{ color: 'var(--accent)' }}>Nuestro catálogo</span>
-              <h2>{vehicles.length ? 'Vehículos para conocer' : 'Estamos preparando el catálogo'}</h2>
+              <h2>{inventoryUnavailable ? 'Catálogo temporalmente no disponible' : vehicles.length ? 'Vehículos para conocer' : 'Estamos preparando el catálogo'}</h2>
               <p className="muted">Solo mostramos unidades que el equipo haya publicado y confirmado.</p>
             </div>
             <Link className="text-link" href="/autos">Ver catálogo →</Link>
           </div>
-          {vehicles.length ? (
+          {inventoryUnavailable ? (
+            <div className="notice" role="status">
+              <strong>No pudimos cargar el catálogo en este momento.</strong>
+              <p>Volvé a intentar más tarde o contactanos para conocer los vehículos disponibles.</p>
+              <Link className="text-link" href="/contacto">Contactar al equipo →</Link>
+            </div>
+          ) : vehicles.length ? (
             <div className="grid">
               {vehicles.slice(0, 3).map((v) => (
                 <article className="vehicle-card" key={v.id}>
