@@ -53,7 +53,7 @@ export default async function HomePage() {
           <div className="hero-visual" aria-label="Vehículos de 3020 Automotores">
             <div className="hero-glow" />
             <div className="hero-visual-label"><span>3020</span><small>AUTOMOTORES</small></div>
-            <img className="hero-car-image hero-generated-image" src="/images/fondo-inicio.png" alt="Diseño de portada de 3020 Automotores con un vehículo en exhibición" fetchPriority="high" />
+            <img className="hero-car-image hero-generated-image" src="/images/iniciofondo.png" alt="Diseño de portada de 3020 Automotores con un vehículo en exhibición" fetchPriority="high" />
             <div className="hero-visual-caption"><span className="hero-caption-kicker">TU PRÓXIMO AUTO</span><strong>Empieza acá.</strong><span className="hero-caption-arrow">↗</span></div>
           </div>
         </div>
