@@ -19,6 +19,20 @@ const legacyRedirects = [
 
 const nextConfig: NextConfig = {
   poweredByHeader: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'raw.githubusercontent.com',
+        pathname: '/pereyradiego8/3020automotores/main/historico/wp-content/uploads/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'zoncelsnskpuninitier.supabase.co',
+        pathname: '/storage/v1/object/public/vehicle-images/**',
+      },
+    ],
+  },
   async redirects() {
     return [
       ...legacyRedirects,
