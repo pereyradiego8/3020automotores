@@ -1,14 +1,13 @@
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getPublishedVehicles } from '@/lib/inventory';
+import { getPublishedVehicleBySlug } from '@/lib/inventory';
 import { getWhatsAppUrl } from '@/lib/contact';
 import VehicleGallery from './VehicleGallery';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
-  const vehicles = await getPublishedVehicles();
-  const vehicle = vehicles.find((item) => item.slug === slug);
+  const vehicle = await getPublishedVehicleBySlug(slug);
   if (!vehicle) return { title: 'Vehículo no disponible', robots: { index: false, follow: true } };
   const canonical = `/autos/${encodeURIComponent(vehicle.slug)}`;
   return { title: vehicle.title, description: `Consultá por ${vehicle.title} en 3020 Automotores. Confirmá disponibilidad, precios y condiciones con el equipo comercial.`, alternates: { canonical }, openGraph: { title: vehicle.title, description: `Consultá por ${vehicle.title} en 3020 Automotores.`, url: canonical, images: vehicle.image_urls?.[0] ? [vehicle.image_urls[0]] : [], type: 'website' } };
@@ -20,8 +19,7 @@ function splitDescription(description: string | null) {
 
 export default async function VehiclePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const vehicles = await getPublishedVehicles();
-  const vehicle = vehicles.find((item) => item.slug === slug);
+  const vehicle = await getPublishedVehicleBySlug(slug);
   if (!vehicle) notFound();
   const specs = [['Marca', vehicle.make || 'Consultar'], ['Modelo', vehicle.model || 'Consultar'], ['Año', String(vehicle.year)], ['Kilometraje', vehicle.mileage_text || 'Consultar'], ['Tipo de vehículo', vehicle.body_type || 'Consultar'], ['Combustible', vehicle.fuel || 'Consultar'], ['Transmisión', vehicle.transmission || 'Consultar']];
   const descriptionLines = splitDescription(vehicle.description);
