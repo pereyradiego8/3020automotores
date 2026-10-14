@@ -5,6 +5,7 @@ import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
 import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
+import { retrySaleDocumentCleanup } from './actions';
 
 type Sale = {
   vehicle_id: string;
@@ -37,7 +38,10 @@ const labels: Record<string, string> = {
 
 const statuses = ['draft', 'published', 'reserved', 'sold'] as const;
 
-export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[]; sales: Sale[] }) {
+export default function AdminInventory({ vehicles, sales, pendingCleanupCount }: { vehicles: Vehicle[]; sales: Sale[]; pendingCleanupCount: number }) {
+  const [pendingCleanup, setPendingCleanup] = useState(pendingCleanupCount);
+  const [cleanupBusy, setCleanupBusy] = useState(false);
+  const [cleanupMessage, setCleanupMessage] = useState('');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof statuses)[number] | 'all'>('published');
   const restoredStatus = useRef(false);
@@ -82,6 +86,28 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
 
   return (
     <section aria-label="Administrar inventario">
+      {pendingCleanup > 0 && (
+        <div className="notice" role="status" aria-live="polite">
+          <strong>Documentación privada pendiente de eliminar: {pendingCleanup} archivo(s).</strong>
+          <p>El cambio de estado ya se guardó. Si hubo un error al borrar los archivos, podés volver a intentar la limpieza sin modificar las ventas.</p>
+          <button type="button" className="button secondary" disabled={cleanupBusy} onClick={async () => {
+            setCleanupBusy(true);
+            setCleanupMessage('');
+            try {
+              const result = await retrySaleDocumentCleanup();
+              setPendingCleanup(result.pending);
+              setCleanupMessage(result.pending
+                ? `Se eliminaron ${result.removed} archivo(s); quedan ${result.pending} pendientes.`
+                : 'La limpieza de documentos privados se completó.');
+            } catch {
+              setCleanupMessage('No se pudo completar la limpieza. Volvé a intentar más tarde.');
+            } finally {
+              setCleanupBusy(false);
+            }
+          }}>{cleanupBusy ? 'Limpiando documentos…' : 'Reintentar limpieza documental'}</button>
+          {cleanupMessage && <p className="muted">{cleanupMessage}</p>}
+        </div>
+      )}
       <div className="admin-inventory-filters">
         <label>
           <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Buscar en inventario y ventas</span>
