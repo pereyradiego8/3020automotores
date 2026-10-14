@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
-import VehicleStatusForm from './VehicleStatusForm';
 import SaleStatusControl from './SaleStatusControl';
 import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
 
@@ -123,15 +122,14 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>{sale?.buyer_document_type || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.buyer_document_number || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="plate" /></div></td>
-                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="notes" /></div></td>
+                    <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
                       {sale?.document_links?.length ? (
                         <div style={{ display: 'grid', gap: 5 }}>
                           {sale.document_links.map((doc, index) => <a key={doc.path} className="text-link" href={doc.url} target="_blank" rel="noreferrer">Abrir archivo {index + 1}</a>)}
                         </div>
                       ) : <span className="muted">Sin archivos</span>}
-                      <div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="documents" /></div>
-                    </td>
+                                          </td>
                   </tr>
                 );
               })}
