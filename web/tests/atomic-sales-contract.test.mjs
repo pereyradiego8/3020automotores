@@ -34,3 +34,12 @@ test('admin sale action uses the transaction RPC without a non-atomic fallback',
   const removeIndex = saleAction.indexOf('removeQueuedSaleDocuments');
   assert.ok(saveIndex >= 0 && removeIndex > saveIndex, 'Storage cleanup should follow a successful transaction');
 });
+
+test('admin only generates temporary links to private documents on demand', () => {
+  const adminPage = readFileSync(new URL('../src/app/admin/page.tsx', import.meta.url), 'utf8');
+  const linkControl = readFileSync(new URL('../src/app/admin/PrivateSaleDocumentLink.tsx', import.meta.url), 'utf8');
+  assert.doesNotMatch(adminPage, /createSignedUrl/);
+  assert.match(linkControl, /createSignedUrl\(path, 300\)/);
+  assert.match(linkControl, /expiresAt: Date\.now\(\) \+ 4 \* 60 \* 1000/);
+  assert.match(linkControl, /rel="noopener noreferrer"/);
+});
