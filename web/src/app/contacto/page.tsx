@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import PageHero from '@/components/PageHero';
 import { getWhatsAppUrl } from '@/lib/contact';
 
 export const metadata = {
@@ -11,7 +12,7 @@ export const metadata = {
 export default function ContactoPage() {
   const whatsappUrl = getWhatsAppUrl('Hola, quiero consultar por los vehículos de 3020 Automotores.');
   return <main>
-    <section className="page-hero"><div className="wrap"><span className="eyebrow">Estamos para ayudarte</span><h1 className="page-title">Hablemos de tu próximo vehículo.</h1><p>Consultanos por modelos, disponibilidad, precios y condiciones. Nuestro equipo puede orientarte con la información de cada unidad.</p></div></section>
+    <PageHero eyebrow="Estamos para ayudarte" title="Hablemos de tu próximo vehículo." description="Consultanos por modelos, disponibilidad, precios y condiciones. Nuestro equipo puede orientarte con la información de cada unidad." />
     <section className="section"><div className="wrap contact-grid">
       <div className="contact-card"><span className="eyebrow" style={{color:'var(--accent)'}}>Contacto directo</span><h2>Comunicate con nosotros</h2>
         <p><span className="contact-label">WhatsApp</span><br/><a className="contact-value" href={whatsappUrl} target="_blank" rel="noreferrer">+54 9 11 3730-3619</a></p>

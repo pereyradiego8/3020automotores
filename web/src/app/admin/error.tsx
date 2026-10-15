@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect } from 'react';
+import PageHero from '@/components/PageHero';
 
 export default function AdminError({
   error,
@@ -11,22 +12,25 @@ export default function AdminError({
   reset: () => void;
 }) {
   useEffect(() => {
-    console.error('Error en el panel de administración:', error);
-  }, [error]);
+    console.error('Error en el panel de administración:', error.digest || 'sin referencia');
+  }, [error.digest]);
 
   return (
-    <main className="section">
-      <div className="wrap">
-        <div className="notice" role="alert">
-          <h1 className="page-title">No pudimos completar la operación</h1>
-          <p>Puede ser un problema temporal de conexión o permisos. Tus cambios podrían no haberse guardado; verificá el estado antes de repetir la acción.</p>
-          {error.digest && <p className="muted">Referencia del error: {error.digest}</p>}
-          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginTop: 16 }}>
-            <button className="button" onClick={() => reset()}>Reintentar</button>
+    <main>
+      <PageHero compact eyebrow="Panel de administración" title="No pudimos completar la operación"
+        description="Puede ser un problema temporal de conexión o permisos. Verificá el estado antes de repetir la acción." />
+      <section className="section admin-section">
+        <div className="wrap">
+          <div className="notice" role="alert">
+            Tus cambios podrían no haberse guardado. Comprobá el estado del vehículo antes de intentarlo nuevamente.
+            {error.digest && <p className="muted">Referencia del error: {error.digest}</p>}
+          </div>
+          <div className="action-row">
+            <button className="button" type="button" onClick={() => reset()}>Reintentar</button>
             <Link className="button secondary" href="/admin">Volver al inventario</Link>
           </div>
         </div>
-      </div>
+      </section>
     </main>
   );
 }

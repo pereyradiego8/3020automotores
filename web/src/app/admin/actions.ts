@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import { getPublicationIssues, type PublicationVehicle } from '@/lib/publication-policy';
 
 function optionalText(formData: FormData, field: string, maxLength: number) {
   const value = String(formData.get(field) || '').trim();
@@ -17,6 +18,21 @@ async function requireAdmin() {
   const { data: admin } = await supabase.from('admin_users').select('user_id').eq('user_id', user.id).maybeSingle();
   if (!admin) throw new Error('Cuenta sin permisos de inventario.');
   return supabase;
+}
+
+async function requirePublishableVehicle(supabase: Awaited<ReturnType<typeof createClient>>, id: string) {
+  const { data: vehicle, error } = await supabase
+    .from('vehicles')
+    .select('id,status,title,make,model,year,price_text,description,image_urls')
+    .eq('id', id)
+    .maybeSingle();
+  if (error || !vehicle) throw new Error('No se encontró el vehículo para verificar su publicación.');
+  if (vehicle.status !== 'published') {
+    const issues = getPublicationIssues(vehicle as PublicationVehicle);
+    if (issues.length) {
+      throw new Error('Para publicar el vehículo completá: ' + issues.join(', ') + '.');
+    }
+  }
 }
 
 export async function createVehicle(formData: FormData) {
@@ -54,6 +70,7 @@ export async function setVehicleStatus(formData: FormData) {
   const id = String(formData.get('id') || '');
   const status = String(formData.get('status') || '');
   if (!id || !['draft', 'published', 'reserved', 'sold'].includes(status)) throw new Error('Estado no válido.');
+  if (status === 'published') await requirePublishableVehicle(supabase, id);
   const { data: updatedVehicle, error } = await supabase
     .from('vehicles')
     .update({ status })
@@ -244,6 +261,7 @@ export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
   const { data: vehicle, error: vehicleReadError } = await supabase
     .from('vehicles').select('id,slug').eq('id', vehicleId).maybeSingle();
   if (vehicleReadError || !vehicle) throw new Error('No se encontró el vehículo.');
+  if (status === 'published') await requirePublishableVehicle(supabase, vehicleId);
 
   if (status === 'sold') {
     const { data: existingSale, error: saleReadError } = await supabase

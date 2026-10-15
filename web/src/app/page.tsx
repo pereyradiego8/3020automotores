@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { getPublishedVehicles } from '@/lib/inventory';
+import Image from 'next/image';
+import { getPublishedVehicles, type PublicVehicle } from '@/lib/inventory';
 import { getWhatsAppUrl } from '@/lib/contact';
 
 const googleReviews = [
@@ -36,7 +37,13 @@ const googleReviews = [
 ];
 
 export default async function HomePage() {
-  const vehicles = await getPublishedVehicles();
+  let vehicles: PublicVehicle[] = [];
+  let inventoryUnavailable = false;
+  try {
+    vehicles = await getPublishedVehicles();
+  } catch {
+    inventoryUnavailable = true;
+  }
   const whatsappUrl = getWhatsAppUrl();
 
   return (
@@ -53,7 +60,7 @@ export default async function HomePage() {
           <div className="hero-visual" aria-label="Vehículos de 3020 Automotores">
             <div className="hero-glow" />
             <div className="hero-visual-label"><span>3020</span><small>AUTOMOTORES</small></div>
-            <img className="hero-car-image hero-generated-image" src="/images/inicio-fondo.png" alt="Diseño de portada de 3020 Automotores con un vehículo en exhibición" fetchPriority="high" />
+            <Image className="hero-car-image hero-generated-image" src="/images/inicio-fondo.png" width={1536} height={1024} sizes="(max-width: 760px) 100vw, 55vw" quality={85} priority alt="Diseño de portada de 3020 Automotores con un vehículo en exhibición" />
             <div className="hero-visual-caption"><span className="hero-caption-kicker">TU PRÓXIMO AUTO</span><strong>Empieza acá.</strong><span className="hero-caption-arrow">↗</span></div>
           </div>
         </div>
@@ -64,18 +71,24 @@ export default async function HomePage() {
           <div className="section-head">
             <div>
               <span className="eyebrow" style={{ color: 'var(--accent)' }}>Nuestro catálogo</span>
-              <h2>{vehicles.length ? 'Vehículos para conocer' : 'Estamos preparando el catálogo'}</h2>
+              <h2>{inventoryUnavailable ? 'Catálogo temporalmente no disponible' : vehicles.length ? 'Vehículos para conocer' : 'Estamos preparando el catálogo'}</h2>
               <p className="muted">Solo mostramos unidades que el equipo haya publicado y confirmado.</p>
             </div>
             <Link className="text-link" href="/autos">Ver catálogo →</Link>
           </div>
-          {vehicles.length ? (
+          {inventoryUnavailable ? (
+            <div className="notice" role="status">
+              <strong>No pudimos cargar el catálogo en este momento.</strong>
+              <p>Volvé a intentar más tarde o contactanos para conocer los vehículos disponibles.</p>
+              <Link className="text-link" href="/contacto">Contactar al equipo →</Link>
+            </div>
+          ) : vehicles.length ? (
             <div className="grid">
               {vehicles.slice(0, 3).map((v) => (
                 <article className="vehicle-card" key={v.id}>
                   <Link href={'/autos/' + v.slug}>
                     {v.image_urls?.[0] ? (
-                      <img className="vehicle-image" src={v.image_urls[0]} alt={v.title} loading="lazy" />
+                      <Image className="vehicle-image" src={v.image_urls[0]} alt={v.title} width={640} height={360} sizes="(max-width: 440px) 100vw, (max-width: 760px) 50vw, 33vw" quality={75} />
                     ) : (
                       <div className="vehicle-image" style={{ display: 'grid', placeItems: 'center', color: 'var(--muted)' }}>3020 Automotores</div>
                     )}

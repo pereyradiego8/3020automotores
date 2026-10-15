@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { signOut } from './actions';
 import AdminInventory from './AdminInventory';
+import PageHero from '@/components/PageHero';
 
 export default async function AdminPage() {
   const supabase = await createClient();
@@ -17,12 +18,14 @@ export default async function AdminPage() {
 
   if (!admin) {
     return (
-      <main className="section">
-        <div className="wrap">
-          <h1 className="page-title">Acceso no habilitado</h1>
-          <p className="muted">La cuenta no está autorizada para administrar el inventario.</p>
-          <form action={signOut}><button className="button secondary">Cerrar sesión</button></form>
-        </div>
+      <main>
+        <PageHero compact eyebrow="Gestión interna" title="Acceso no habilitado"
+          description="La cuenta no está autorizada para administrar el inventario." />
+        <section className="section admin-section">
+          <div className="wrap">
+            <form action={signOut}><button className="button secondary">Cerrar sesión</button></form>
+          </div>
+        </section>
       </main>
     );
   }
@@ -48,26 +51,24 @@ export default async function AdminPage() {
     .order('id', { ascending: true });
 
   return (
-    <main className="section">
-      <div className="wrap">
-        <div className="section-head">
-          <div>
-            <h1 className="page-title">Inventario</h1>
-            <p className="muted">Sesión: {user.email}</p>
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            <Link className="button" href="/admin/nuevo">+ Cargar vehículo</Link>
-            <form action={signOut}><button className="button secondary">Salir</button></form>
-          </div>
+    <main>
+      <PageHero compact eyebrow="Gestión interna" title="Inventario de vehículos"
+        description="Administrá las publicaciones, los datos comerciales y los estados de las unidades.">
+        <Link className="button" href="/admin/nuevo">+ Cargar vehículo</Link>
+        <form action={signOut}><button className="button secondary">Cerrar sesión</button></form>
+      </PageHero>
+      <section className="section admin-section">
+        <div className="wrap">
+          <p className="muted admin-session">Sesión: {user.email}</p>
+          {error ? (
+            <div className="notice" role="alert">No se pudo leer el inventario. Verificá Supabase.</div>
+          ) : !vehicles?.length ? (
+            <div className="empty">Todavía no hay vehículos cargados.</div>
+          ) : (
+            <AdminInventory vehicles={vehicles || []} sales={salesWithLinks || []} />
+          )}
         </div>
-        {error ? (
-          <div className="notice">No se pudo leer el inventario. Verificá Supabase.</div>
-        ) : !vehicles?.length ? (
-          <div className="empty">Todavía no hay vehículos cargados.</div>
-        ) : (
-          <AdminInventory vehicles={vehicles || []} sales={salesWithLinks || []} />
-        )}
-      </div>
+      </section>
     </main>
   );
 }
