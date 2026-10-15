@@ -65,8 +65,8 @@ export default function SaleStatusControl({
         </select>
       </label>
       {message && <p className="muted" role="status" style={{ margin: 0 }}>{message}</p>}
-      {confirm && <div role="alertdialog" aria-modal="true" aria-labelledby={'confirm-sale-' + vehicleId} style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(0,0,0,.6)', display: 'grid', placeItems: 'center', padding: 18 }}>
-        <section style={{ width: '100%', maxWidth: 480, background: 'var(--surface, white)', color: 'var(--foreground, #171717)', border: '1px solid var(--border)', borderRadius: 12, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
+      {confirm && <div role="alertdialog" aria-modal="true" aria-labelledby={'confirm-sale-' + vehicleId} style={{ position: 'fixed', inset: 0, zIndex: 1200, background: 'rgba(0,0,0,.6)', display: 'grid', placeItems: 'center', padding: 16, overflowY: 'auto' }}>
+        <section style={{ width: '100%', maxWidth: 480, maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', background: 'var(--surface, white)', color: 'var(--foreground, #171717)', border: '1px solid var(--border)', borderRadius: 12, padding: 'clamp(16px, 3vw, 22px)', boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
           <h3 id={'confirm-sale-' + vehicleId} style={{ marginTop: 0 }}>¿Cambiar el estado de publicación?</h3>
           <p>Si cambiás de <strong>Vendido</strong> a <strong>{labels[status]}</strong>, se eliminarán permanentemente los datos del comprador, la patente, las notas, el registro de venta y los documentos privados. Esta acción no se puede deshacer.</p>
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, flexWrap: 'wrap' }}>
