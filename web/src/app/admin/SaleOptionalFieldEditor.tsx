@@ -97,8 +97,8 @@ export default function SaleOptionalFieldEditor({
         {hasValue ? (field === 'documents' ? `Editar (${paths.length})` : 'Editar') : `+ ${fieldCopy[field].action}`}
       </button>
       {open && (
-        <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) setOpen(false); }} style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.58)', display: 'grid', placeItems: 'center', padding: 18 }}>
-          <section role="dialog" aria-modal="true" aria-labelledby={`sale-field-${field}-title`} style={{ width: '100%', maxWidth: 500, maxHeight: 'none', overflow: 'visible', background: 'var(--surface, white)', color: 'var(--foreground, #171717)', border: '1px solid var(--border)', borderRadius: 12, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
+        <div role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget && !busy) setOpen(false); }} style={{ position: 'fixed', inset: 0, zIndex: 1100, background: 'rgba(0,0,0,.58)', display: 'grid', placeItems: 'center', padding: 16, overflowY: 'auto' }}>
+          <section role="dialog" aria-modal="true" aria-labelledby={`sale-field-${field}-title`} style={{ width: '100%', maxWidth: 500, maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', background: 'var(--surface, white)', color: 'var(--foreground, #171717)', border: '1px solid var(--border)', borderRadius: 12, padding: 'clamp(16px, 3vw, 22px)', boxShadow: '0 20px 60px rgba(0,0,0,.3)' }}>
             <h3 id={`sale-field-${field}-title`} style={{ marginTop: 0 }}>{fieldCopy[field].title}</h3>
             <form onSubmit={save} style={{ display: 'grid', gap: 14 }}>
               {field === 'plate' && <label><input autoFocus className="field" value={plate} onChange={(event) => setPlate(event.target.value)} maxLength={12} placeholder="Ej.: AB 123 CD" disabled={busy} /></label>}
