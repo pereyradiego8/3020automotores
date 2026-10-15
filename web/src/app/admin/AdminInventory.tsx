@@ -120,7 +120,7 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
           <button type="button" className="button secondary" onClick={() => { setSearch(''); setStatus('all'); }} style={{ marginTop: 0 }}>Limpiar búsqueda y filtros</button>
         </div>
       ) : status === 'sold' ? (
-        <div style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 10 }}>
+        <div className="admin-sales-table-scroll" role="region" tabIndex={0} aria-label="Tabla de ventas, deslizar horizontalmente para ver todas las columnas" style={{ overflowX: 'auto', border: '1px solid var(--border)', borderRadius: 10 }}>
           <table style={{ width: '100%', minWidth: 1050, borderCollapse: 'collapse', fontSize: 13, textAlign: 'left' }}>
             <thead>
               <tr>
