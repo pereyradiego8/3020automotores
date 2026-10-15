@@ -76,7 +76,7 @@ export default function VehicleImageManager({ vehicleId, initialUrls }: { vehicl
 
   return <section style={{ marginTop: 14, borderTop: '1px solid var(--border)', paddingTop: 14 }}>
     <p><strong>Fotos ({urls.length}/12)</strong></p>
-    {urls.length > 0 && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(130px,1fr))', gap: 10, marginBottom: 12 }}>
+    {urls.length > 0 && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,118px),1fr))', gap: 10, marginBottom: 12 }}>
       {urls.map((url, index) => <div key={url} style={{ minWidth: 0 }}>
         <img src={url} alt={`Foto ${index + 1} del vehículo`} style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 6 }} />
         <p className="muted" style={{ fontSize: 11, margin: '5px 0' }}>{index === 0 ? 'Foto principal' : `Foto ${index + 1}`}</p>
