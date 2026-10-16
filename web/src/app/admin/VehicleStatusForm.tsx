@@ -164,7 +164,7 @@ export default function VehicleStatusForm({
             Nombre y apellido del comprador *
             <input className="field" value={buyerName} onChange={(event) => setBuyerName(event.target.value)} maxLength={160} placeholder="Nombre y apellido" disabled={busy} required />
           </label>
-          <div style={{ display: 'grid', gridTemplateColumns: 'minmax(100px, 0.65fr) minmax(150px, 1fr)', gap: 10 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 160px), 1fr))', gap: 10 }}>
             <label>
               Tipo de documento
               <select className="field" value={buyerDocumentType} onChange={(event) => setBuyerDocumentType(event.target.value as 'DNI' | 'CUIL' | 'CUIT')} disabled={busy}>
@@ -214,12 +214,12 @@ export default function VehicleStatusForm({
           aria-describedby="delete-sale-description"
           style={{
             position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(0,0,0,.62)',
-            display: 'grid', placeItems: 'center', padding: 20,
+            display: 'grid', placeItems: 'center', padding: 16, overflowY: 'auto',
           }}
         >
           <section style={{
-            width: '100%', maxWidth: 480, background: 'var(--surface, white)', color: 'var(--foreground, #171717)',
-            border: '1px solid var(--border)', borderRadius: 12, padding: 22, boxShadow: '0 20px 60px rgba(0,0,0,.3)',
+            width: '100%', maxWidth: 480, maxHeight: 'calc(100dvh - 32px)', overflowY: 'auto', background: 'var(--surface, white)', color: 'var(--foreground, #171717)',
+            border: '1px solid var(--border)', borderRadius: 12, padding: 'clamp(16px, 3vw, 22px)', boxShadow: '0 20px 60px rgba(0,0,0,.3)',
           }}>
             <h3 id="delete-sale-title" style={{ marginTop: 0 }}>¿Cambiar el estado de publicación?</h3>
             <p id="delete-sale-description">
