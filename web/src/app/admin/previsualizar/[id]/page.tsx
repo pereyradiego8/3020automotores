@@ -67,7 +67,7 @@ export default async function AdminVehiclePreview({ params }: { params: Promise<
           <div className="detail-extra-grid">
             {vehicle.description && <section className="detail-extra-panel">
               <h2>Descripción</h2>
-              {vehicle.description.split(/\r?\n/).filter(Boolean).map((line, index) => <p key={index}>{line}</p>)}
+              {vehicle.description.split(/\r?\n/).filter(Boolean).map((line: string, index: number) => <p key={index}>{line}</p>)}
             </section>}
             {!!vehicle.features?.length && <section className="detail-extra-panel">
               <h2>Otras características</h2>
