@@ -34,7 +34,7 @@ export default function SaleStatusControl({
     setBusy(true);
     setMessage('');
     try {
-      await setVehicleStatusAndSale({
+      const saveResult = await setVehicleStatusAndSale({
         vehicleId, status,
         buyerName: sale.buyer_name ?? '',
         buyerDocumentType: sale.buyer_document_type ?? 'DNI',
@@ -44,6 +44,7 @@ export default function SaleStatusControl({
         documentPaths: sale.document_paths ?? [],
       });
       setConfirm(false);
+      if (saveResult.cleanupPending) setMessage('El estado se guardó, pero quedó documentación pendiente de eliminar. Reintentá desde el inventario.');
       router.refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'No se pudo cambiar el estado.');

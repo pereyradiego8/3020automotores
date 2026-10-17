@@ -112,7 +112,7 @@ export default function VehicleStatusForm({
       }
 
       const nextPaths = status === 'sold' ? [...documentPaths, ...uploadedPaths] : documentPaths;
-      await setVehicleStatusAndSale({
+      const saveResult = await setVehicleStatusAndSale({
         vehicleId,
         status,
         buyerName,
@@ -132,7 +132,9 @@ export default function VehicleStatusForm({
         setSaleNotes('');
         setDocumentPaths([]);
       }
-      setMessage(status === 'sold' ? 'Venta y estado guardados correctamente.' : 'Estado actualizado y datos de venta eliminados correctamente.');
+      setMessage(saveResult.cleanupPending
+        ? 'El estado y los datos se guardaron correctamente, pero quedó documentación privada pendiente de borrar. Podés reintentar la limpieza desde el inventario.'
+        : status === 'sold' ? 'Venta y estado guardados correctamente.' : 'Estado actualizado y datos de venta eliminados correctamente.');
       router.refresh();
     } catch (error) {
       if (uploadedPaths.length) {

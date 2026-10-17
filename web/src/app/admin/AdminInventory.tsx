@@ -5,6 +5,8 @@ import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
 import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
+import PrivateSaleDocumentLink from './PrivateSaleDocumentLink';
+import { retrySaleDocumentCleanup } from './actions';
 
 type Sale = {
   vehicle_id: string;
@@ -15,7 +17,6 @@ type Sale = {
   sale_notes: string | null;
   sold_at: string;
   document_paths: string[] | null;
-  document_links?: { path: string; url: string }[];
 };
 
 type Vehicle = {
@@ -37,7 +38,11 @@ const labels: Record<string, string> = {
 
 const statuses = ['draft', 'published', 'reserved', 'sold'] as const;
 
-export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[]; sales: Sale[] }) {
+export default function AdminInventory({ vehicles, sales, pendingCleanupCount }: { vehicles: Vehicle[]; sales: Sale[]; pendingCleanupCount: number }) {
+  const [pendingCleanup, setPendingCleanup] = useState(pendingCleanupCount);
+  useEffect(() => setPendingCleanup(pendingCleanupCount), [pendingCleanupCount]);
+  const [cleanupBusy, setCleanupBusy] = useState(false);
+  const [cleanupMessage, setCleanupMessage] = useState('');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof statuses)[number] | 'all'>('published');
   const restoredStatus = useRef(false);
@@ -82,6 +87,28 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
 
   return (
     <section aria-label="Administrar inventario">
+      {pendingCleanup > 0 && (
+        <div className="notice" role="status" aria-live="polite">
+          <strong>Documentación privada pendiente de eliminar: {pendingCleanup} archivo(s).</strong>
+          <p>El cambio de estado ya se guardó. Si hubo un error al borrar los archivos, podés volver a intentar la limpieza sin modificar las ventas.</p>
+          <button type="button" className="button secondary" disabled={cleanupBusy} onClick={async () => {
+            setCleanupBusy(true);
+            setCleanupMessage('');
+            try {
+              const result = await retrySaleDocumentCleanup();
+              setPendingCleanup(result.pending);
+              setCleanupMessage(result.pending
+                ? `Se eliminaron ${result.removed} archivo(s); quedan ${result.pending} pendientes.`
+                : 'La limpieza de documentos privados se completó.');
+            } catch {
+              setCleanupMessage('No se pudo completar la limpieza. Volvé a intentar más tarde.');
+            } finally {
+              setCleanupBusy(false);
+            }
+          }}>{cleanupBusy ? 'Limpiando documentos…' : 'Reintentar limpieza documental'}</button>
+          {cleanupMessage && <p className="muted">{cleanupMessage}</p>}
+        </div>
+      )}
       <div className="admin-inventory-filters">
         <label>
           <span style={{ display: 'block', fontSize: 12, fontWeight: 700, marginBottom: 6 }}>Buscar en inventario y ventas</span>
@@ -146,9 +173,11 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="plate" /></div></td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
-                      {sale?.document_links?.length ? (
+                      {sale?.document_paths?.length ? (
                         <div style={{ display: 'grid', gap: 5 }}>
-                          {sale.document_links.map((doc, index) => <a key={doc.path} className="text-link" href={doc.url} target="_blank" rel="noreferrer">Abrir archivo {index + 1}</a>)}
+                          {sale.document_paths.map((path, index) => (
+                            <PrivateSaleDocumentLink key={path} path={path} number={index + 1} />
+                          ))}
                         </div>
                       ) : <span className="muted">Sin archivos</span>}
                                           </td>

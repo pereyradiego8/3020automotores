@@ -65,44 +65,6 @@ export async function createVehicle(formData: FormData) {
   redirect('/admin');
 }
 
-export async function setVehicleStatus(formData: FormData) {
-  const supabase = await requireAdmin();
-  const id = String(formData.get('id') || '');
-  const status = String(formData.get('status') || '');
-  if (!id || !['draft', 'published', 'reserved', 'sold'].includes(status)) throw new Error('Estado no válido.');
-  if (status === 'published') await requirePublishableVehicle(supabase, id);
-  const { data: updatedVehicle, error } = await supabase
-    .from('vehicles')
-    .update({ status })
-    .eq('id', id)
-    .select('id')
-    .maybeSingle();
-
-  if (error) {
-    // Keep database details in server logs for diagnosis; never expose them to the browser.
-    console.error('No se pudo actualizar el estado del vehículo.', {
-      vehicleId: id,
-      requestedStatus: status,
-      code: error.code,
-      message: error.message,
-      details: error.details,
-      hint: error.hint,
-    });
-    throw new Error('No se pudo actualizar el estado. Revisá los permisos y la conexión e intentá nuevamente.');
-  }
-
-  if (!updatedVehicle) {
-    console.error('La actualización del estado no modificó ninguna fila.', {
-      vehicleId: id,
-      requestedStatus: status,
-    });
-    throw new Error('No se aplicaron cambios. Actualizá el inventario y verificá que el vehículo siga disponible para editar.');
-  }
-  revalidatePath('/admin');
-  revalidatePath('/autos');
-  revalidatePath('/sitemap.xml');
-}
-
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
@@ -228,6 +190,57 @@ export async function removeVehicleImage(vehicleId: string, imageUrl: string) {
 }
 
 
+/**
+ * Storage is not part of the PostgreSQL transaction. Delete only after the
+ * sale/status RPC commits; keep the queue entry if Storage or acknowledgement
+ * fails, so the admin can retry without losing the document's path.
+ */
+async function removeQueuedSaleDocuments(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  vehicleId: string,
+  paths: string[],
+): Promise<boolean> {
+  if (paths.length === 0) return true;
+  try {
+    const { error: storageError } = await supabase.storage.from('vehicle-sale-documents').remove(paths);
+    if (storageError) {
+      console.error('No se pudieron eliminar documentos privados pendientes.', { vehicleId, code: storageError.statusCode });
+      return false;
+    }
+    const { error: acknowledgedError } = await supabase.rpc('acknowledge_sale_document_cleanup', {
+      p_vehicle_id: vehicleId,
+      p_document_paths: paths,
+    });
+    if (acknowledgedError) {
+      console.error('No se pudo confirmar la limpieza de documentos privados.', { vehicleId, code: acknowledgedError.code });
+      return false;
+    }
+    return true;
+  } catch {
+    console.error('Falló la limpieza de documentos privados.', { vehicleId });
+    return false;
+  }
+}
+
+/** Manually retry removals queued by previously completed status changes. */
+export async function retrySaleDocumentCleanup(): Promise<{ removed: number; pending: number }> {
+  const supabase = await requireAdmin();
+  const { data, error } = await supabase.rpc('list_pending_sale_document_cleanup');
+  if (error) throw new Error('No se pudo consultar la documentación pendiente de eliminar.');
+  const rows = (Array.isArray(data) ? data : []) as Array<{ vehicle_id: string; object_path: string }>;
+  const grouped = new Map<string, string[]>();
+  for (const row of rows) {
+    if (!row.vehicle_id || !row.object_path) continue;
+    grouped.set(row.vehicle_id, [...(grouped.get(row.vehicle_id) ?? []), row.object_path]);
+  }
+  let removed = 0;
+  for (const [vehicleId, paths] of grouped) {
+    if (await removeQueuedSaleDocuments(supabase, vehicleId, paths)) removed += paths.length;
+  }
+  revalidatePath('/admin');
+  return { removed, pending: rows.length - removed };
+}
+
 export type VehicleSaleUpdate = {
   vehicleId: string;
   status: 'draft' | 'published' | 'reserved' | 'sold';
@@ -263,55 +276,35 @@ export async function setVehicleStatusAndSale(input: VehicleSaleUpdate) {
   if (vehicleReadError || !vehicle) throw new Error('No se encontró el vehículo.');
   if (status === 'published') await requirePublishableVehicle(supabase, vehicleId);
 
-  if (status === 'sold') {
-    const { data: existingSale, error: saleReadError } = await supabase
-      .from('vehicle_sales').select('sold_at').eq('vehicle_id', vehicleId).maybeSingle();
-    if (saleReadError) throw new Error('No se pudo leer el registro de venta.');
-    const { error: saleError } = await supabase.from('vehicle_sales').upsert({
-      vehicle_id: vehicleId,
-      buyer_name: buyerName.trim() || null,
-      buyer_document_type: buyerDocumentNumber.trim() ? buyerDocumentType : null,
-      buyer_document_number: buyerDocumentNumber.trim() || null,
-      vehicle_plate: vehiclePlate.trim().toUpperCase() || null,
-      sale_notes: saleNotes.trim() || null,
-      document_paths: documentPaths,
-      sold_at: existingSale?.sold_at ?? new Date().toISOString(),
-    }, { onConflict: 'vehicle_id' });
-    if (saleError) {
-      console.error('No se pudo guardar el registro de venta.', { vehicleId, code: saleError.code, message: saleError.message });
-      throw new Error('No se pudieron guardar los datos de la venta. El estado no fue modificado.');
-    }
-  } else {
-    // Leaving the sold state permanently clears buyer details and private sale documents.
-    const { data: existingSale, error: saleReadError } = await supabase
-      .from('vehicle_sales').select('document_paths').eq('vehicle_id', vehicleId).maybeSingle();
-    if (saleReadError) throw new Error('No se pudo leer el registro de venta para eliminar sus datos.');
-    const paths = Array.isArray(existingSale?.document_paths) ? existingSale.document_paths : [];
-    if (paths.length) {
-      const { error: storageError } = await supabase.storage.from('vehicle-sale-documents').remove(paths);
-      if (storageError) {
-        console.error('No se pudo eliminar la documentación de la venta.', { vehicleId, message: storageError.message });
-        throw new Error('No se pudieron eliminar los documentos de la venta. El estado no fue modificado.');
-      }
-    }
-    const { error: deleteSaleError } = await supabase.from('vehicle_sales').delete().eq('vehicle_id', vehicleId);
-    if (deleteSaleError) {
-      console.error('No se pudieron eliminar los datos de la venta.', { vehicleId, message: deleteSaleError.message });
-      throw new Error('No se pudieron borrar los datos del comprador. El estado no fue modificado.');
-    }
-  }
-
-  const { data: updatedVehicle, error } = await supabase
-    .from('vehicles').update({ status }).eq('id', vehicleId).select('id').maybeSingle();
-  if (error || !updatedVehicle) {
-    console.error('No se pudo actualizar el estado del vehículo.', {
-      vehicleId, requestedStatus: status, code: error?.code, message: error?.message,
+  // One PostgreSQL transaction updates the sale row and vehicle status.
+  // The stored procedure is created by migration 20261014160000; never
+  // fall back to the old multi-query write path if it is not installed.
+  const { data: queuedPaths, error: saveError } = await supabase.rpc('save_vehicle_sale_atomic', {
+    p_vehicle_id: vehicleId,
+    p_status: status,
+    p_buyer_name: buyerName,
+    p_buyer_document_type: buyerDocumentType,
+    p_buyer_document_number: buyerDocumentNumber,
+    p_vehicle_plate: vehiclePlate,
+    p_sale_notes: saleNotes,
+    p_document_paths: documentPaths,
+  });
+  if (saveError) {
+    console.error('La transacción de venta/estado falló.', {
+      vehicleId,
+      requestedStatus: status,
+      code: saveError.code,
+      message: saveError.message,
     });
-    throw new Error('No se pudo actualizar el estado. Revisá los permisos y la conexión e intentá nuevamente.');
+    throw new Error('No se pudieron guardar los datos y el estado del vehículo. No se realizó ningún cambio. Verificá la configuración de la base de datos.');
   }
+  const pendingPaths = (Array.isArray(queuedPaths) ? queuedPaths : [])
+    .filter((path): path is string => typeof path === 'string');
+  const cleanupPending = !(await removeQueuedSaleDocuments(supabase, vehicleId, pendingPaths));
 
   revalidatePath('/admin');
   revalidatePath('/autos');
   revalidatePath('/sitemap.xml');
   revalidatePath(`/autos/${vehicle.slug}`);
+  return { cleanupPending };
 }

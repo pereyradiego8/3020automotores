@@ -6,21 +6,38 @@
 - Región: São Paulo (`sa-east-1`)
 - URL: `https://zoncelsnskpuninitier.supabase.co`
 - Bucket público de fotos: `vehicle-images`
-- Estado de base: 24 vehículos históricos importados como borradores; 0 publicados.
+- El estado del inventario cambia con las publicaciones del equipo; verificá las cantidades actuales desde el panel. Los registros migrados comenzaron como borradores.
 
 La clave `sb_publishable_...` configurada en `.env.example` es una clave pública del cliente. Es apropiado incluirla en una aplicación web, siempre que RLS permanezca activado. **Nunca** publiques una clave `service_role` o una clave secreta.
 
 ## Migraciones
 
-En el proyecto conectado ya se aplicaron las migraciones en orden. Para reconstruir un entorno nuevo, ejecutá en SQL Editor:
+La carpeta `migrations/` incluye, en orden funcional:
 
-1. `migrations/202610100001_inventory.sql`
-2. `migrations/202610100002_import_historical_vehicle_drafts.sql`
-3. `migrations/202610100003_import_additional_vehicle_drafts.sql`
-4. `migrations/202610100004_harden_inventory_admin_function.sql`
-5. `migrations/20261013190000_vehicle_sales_and_private_documents.sql`
+1. `202610100001_inventory.sql` — esquema del inventario y sus políticas RLS.
+2. `202610100002_import_historical_vehicle_drafts.sql` — borradores históricos.
+3. `202610100003_import_additional_vehicle_drafts.sql` — borradores adicionales.
+4. `202610100004_harden_inventory_admin_function.sql` — función privada de autorización.
+5. `202610120001_vehicle_trade_in_and_features.sql` — permuta y características.
+6. `20261013190000_vehicle_sales_and_private_documents.sql` — registros y archivos de venta privados.
+7. `20261013201709_vehicle_sale_buyer_document.sql` — documento del comprador.
+8. `20261013213000_vehicle_sale_plate.sql` — patente.
+9. **Pendiente de validación:** `20261014160000_atomic_vehicle_sales.sql` — venta y estado en una transacción, con cola privada para limpieza de documentos.
 
-La primera migración crea las tablas, estados, políticas RLS y bucket. Las dos siguientes importan 24 fichas históricas como borradores. La cuarta mueve la función auxiliar de autorización al esquema privado para que no esté expuesta a través de la Data API pública.
+La base conectada tiene además una migración aplicada denominada `harden_inventory_admin_search_path`, cuyo script original no está versionado en esta lista; antes de reconstruir un entorno nuevo, comparar el estado real y recuperar ese cambio. Nunca dar por sincronizada la historia de migraciones únicamente por los nombres de archivos.
+
+### Antes de aplicar la migración de ventas
+
+**No aplicarla sobre producción durante la revisión del PR.** El nuevo panel requiere la RPC de venta transaccional. Primero verificar el comportamiento en una base de pruebas independiente:
+
+- Confirmar que un usuario anónimo y un usuario autenticado no autorizado no pueden ejecutar las funciones de venta ni leer el bucket privado.
+- Registrar una venta con datos de ejemplo, verificar el estado `sold` y que exista exactamente un registro de venta.
+- Provocar una validación fallida y confirmar que ni el estado ni el registro se modifican.
+- Revertir la venta y comprobar que los datos del comprador se eliminan y que los archivos pendientes permanecen en la cola privada hasta confirmarse la eliminación de Storage.
+- Probar el botón de reintento de la cola y verificar que no existan documentos pendientes.
+- Después de las pruebas, coordinar migración y despliegue de la versión aprobada de la web, con respaldo y plan de reversión.
+
+Más detalles en `ATOMIC_SALES_TEST_PLAN.md`.
 
 ## Crear el primer administrador
 

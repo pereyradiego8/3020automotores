@@ -65,7 +65,7 @@ export default function SaleOptionalFieldEditor({
         uploaded.push(path);
       }
       const nextPaths = field === 'documents' ? [...paths, ...uploaded] : paths;
-      await setVehicleStatusAndSale({
+      const saveResult = await setVehicleStatusAndSale({
         vehicleId,
         status: 'sold',
         buyerName: sale?.buyer_name ?? '',
@@ -77,8 +77,10 @@ export default function SaleOptionalFieldEditor({
       });
       setPaths(nextPaths);
       setFiles([]);
-      setMessage('Información guardada correctamente.');
-      setOpen(false);
+      setMessage(saveResult.cleanupPending
+        ? 'Información guardada. Hay archivos privados pendientes de eliminar; reintentá desde el inventario.'
+        : 'Información guardada correctamente.');
+      if (!saveResult.cleanupPending) setOpen(false);
       router.refresh();
     } catch (error) {
       if (uploaded.length) await supabase.storage.from('vehicle-sale-documents').remove(uploaded).catch(() => undefined);
