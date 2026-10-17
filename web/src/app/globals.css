@@ -471,3 +471,16 @@ img,video,iframe{max-width:100%}
   .detail-contact-actions .detail-contact-button{grid-column:auto}
   .analytics-consent-actions{flex-direction:column}
 }
+
+/* Panel administrativo: resumen claro y vista previa sin publicar. */
+.admin-status-filters{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.admin-status-filters .button{margin:0;padding:9px 12px;font-size:12px;min-height:39px}
+.admin-vehicle-links{display:flex;gap:8px 18px;flex-wrap:wrap;margin:10px 0}
+.admin-vehicle-links .text-link{min-height:32px;display:inline-flex;align-items:center}
+.publication-readiness{font-size:12px;line-height:1.6;padding:9px 12px;border-radius:7px;margin:8px 0 12px}
+.publication-readiness--pending{background:#fff8e8;border:1px solid #f1dfb4;color:#674f19}
+.publication-readiness--ready{background:#f0f6f2;border:1px solid #b9d5c2;color:#1f5a39}
+.private-document-control{display:grid;gap:5px;min-width:0}
+.private-document-control .private-document-trigger{border:0;background:none;padding:0;text-align:left;cursor:pointer}
+.private-document-control .private-document-trigger:disabled{opacity:.6;cursor:wait}
+.private-document-control>span{font-size:12px;overflow-wrap:anywhere}
