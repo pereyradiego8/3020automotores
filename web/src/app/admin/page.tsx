@@ -34,18 +34,9 @@ export default async function AdminPage() {
     .from('vehicle_sales')
     .select('vehicle_id,buyer_name,buyer_document_type,buyer_document_number,vehicle_plate,sale_notes,sold_at,document_paths');
 
-  const salesWithLinks = await Promise.all((sales || []).map(async (sale) => {
-    const paths = Array.isArray(sale.document_paths) ? sale.document_paths : [];
-    const document_links = await Promise.all(paths.map(async (path) => {
-      const { data } = await supabase.storage.from('vehicle-sale-documents').createSignedUrl(path, 3600);
-      return data?.signedUrl ? { path, url: data.signedUrl } : null;
-    }));
-    return { ...sale, document_links: document_links.filter((item): item is { path: string; url: string } => item !== null) };
-  }));
-
   const { data: vehicles, error } = await supabase
     .from('vehicles')
-    .select('id,title,make,model,year,status,image_urls')
+    .select('id,title,slug,make,model,year,status,image_urls,price_text,description')
     // Keep a stable alphabetical order; status saves update updated_at and must not move a car.
     .order('title', { ascending: true })
     .order('id', { ascending: true });
@@ -65,7 +56,7 @@ export default async function AdminPage() {
           ) : !vehicles?.length ? (
             <div className="empty">Todavía no hay vehículos cargados.</div>
           ) : (
-            <AdminInventory vehicles={vehicles || []} sales={salesWithLinks || []} />
+            <AdminInventory vehicles={vehicles || []} sales={sales || []} />
           )}
         </div>
       </section>
