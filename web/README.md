@@ -42,6 +42,37 @@ Sin credenciales de Supabase, el catálogo queda vacío intencionalmente.
 
 La aplicación incluye `sitemap.xml` con el inicio, el catálogo y las fichas publicadas, y `robots.txt` que permite indexar las páginas públicas y excluye `/admin`. Ambos usan `NEXT_PUBLIC_SITE_URL`; configurala en el entorno de despliegue con la URL canónica aprobada, no con una URL temporal.
 
-## Contacto de WhatsApp
+## Contacto y consultas comerciales
 
-El número de WhatsApp no se toma automáticamente de la web histórica para evitar enviar consultas a un teléfono desactualizado. Configurá `NEXT_PUBLIC_WHATSAPP_NUMBER` con el número comercial confirmado en formato internacional, solo dígitos (sin `+`, espacios ni guiones), tanto en el entorno local como en el hosting. Si no está configurado o el formato no es válido, el sitio muestra un aviso y no ofrece un enlace de WhatsApp. No cargues números personales sin autorización.
+El número oficial de WhatsApp está centralizado en `src/lib/contact.ts`. Se usa en la navegación, la portada, la página de contacto, las fichas de vehículos y el botón flotante móvil. Las consultas de disponibilidad, permuta y financiación son preguntas, no condiciones comerciales garantizadas.
+
+El concesionario gestiona directamente las fotografías y los precios de permuta desde el administrador. Esta mejora no modifica fotografías ni inventario.
+
+## SEO de vehículos
+
+Las fichas publicadas exponen datos estructurados `Car` y, si hay precio numérico confiable, `Offer` con la moneda original ARS o USD. El kilometraje se publica en el schema solo si es interpretable. El sitemap incluye las fichas publicadas y sus fechas reales de actualización; no se indexan las vistas previas privadas.
+
+Las URLs antiguas correspondientes a vehículos retirados o renombrados se redirigen al catálogo o a una ficha equivalente **solo cuando es el mismo modelo**. No se redirige automáticamente un vehículo a una versión o transmisión distinta.
+
+## Medición gratuita (opcional)
+
+Para medir **visitas y clics a WhatsApp sin pagar Vercel Pro**, podés configurar Google Analytics 4:
+
+1. Crear una propiedad web gratuita en Google Analytics y obtener un ID de medición del formato `G-XXXXXXXXXX`.
+2. Configurar `NEXT_PUBLIC_GA_MEASUREMENT_ID` en Vercel para **Production** y, si hace falta, **Preview**. No inventar ni copiar IDs de otros sitios.
+3. Volver a desplegar para incorporar el valor al JavaScript del cliente.
+4. El sitio solicita permiso explícito antes de cargar Google Analytics. Si el visitante lo rechaza, no se carga ese script.
+5. Los clics generan el evento `contact_click` con `placement`, `intent`, `channel` y opcionalmente `vehicle_slug` público. **No se envían nombres, teléfonos ni documentos de compradores.** Las vistas de eventos y sus parámetros deben configurarse dentro de GA4 para crear reportes.
+
+La medición **no se activa** si no se define `NEXT_PUBLIC_GA_MEASUREMENT_ID`. Vercel Web Analytics básico también sirve para visitas, pero los eventos personalizados en Vercel requieren Pro: por eso esta implementación no depende de eventos pagos.
+
+## Administración y privacidad
+
+- Los borradores pueden abrirse en `/admin/previsualizar/[id]`, protegida con autenticación y permisos de inventario. Esa vista **no publica** el vehículo.
+- El inventario informa qué datos mínimos faltan para publicar; utiliza la misma política que la acción de publicación.
+- Los enlaces a documentos privados de venta se crean **a pedido** del administrador y expiran en aproximadamente 5 minutos. No se generan cientos de enlaces al cargar el listado.
+- Las escrituras de venta transaccionales del PR #53 están **pendientes de pruebas en una base de datos aislada**; no instalar la migración SQL en producción sin validación.
+
+## Pruebas visuales responsive
+
+El workflow manual `.github/workflows/visual-responsive.yml` inicia una copia local sin credenciales, visita páginas públicas a 320, 390, 768 y 1440 píxeles, revisa desbordes horizontales y tamaños de títulos, y guarda capturas como artefactos por siete días. Se ejecuta desde **GitHub Actions → Visual responsive (manual, no buyer data) → Run workflow** cuando el archivo exista en la rama elegida. Usa minutos de GitHub Actions; no toca inventario ni compradores.
