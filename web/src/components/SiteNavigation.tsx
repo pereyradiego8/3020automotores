@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import ContactLink from './ContactLink';
 
 const links = [
   { href: '/autos', label: 'Vehículos' },
@@ -20,8 +21,7 @@ export default function SiteNavigation({ whatsappUrl }: { whatsappUrl: string | 
           {label}
         </Link>
       ))}
-      {whatsappUrl && <a className="site-nav-whatsapp" href={whatsappUrl}
-        target="_blank" rel="noopener noreferrer">WhatsApp ↗</a>}
+      {whatsappUrl && <ContactLink className="site-nav-whatsapp" href={whatsappUrl} placement="header">WhatsApp ↗</ContactLink>}
     </nav>
   );
 }
