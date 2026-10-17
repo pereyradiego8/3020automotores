@@ -43,3 +43,22 @@ test('admin only generates temporary links to private documents on demand', () =
   assert.match(linkControl, /expiresAt: Date\.now\(\) \+ 4 \* 60 \* 1000/);
   assert.match(linkControl, /rel="noopener noreferrer"/);
 });
+
+test('migration has exactly three complete RPC declarations and no duplicated tail', () => {
+  const functions = migration.match(/create or replace function public\./g) || [];
+  const delimiters = migration.match(/\$function\$/g) || [];
+  assert.equal(functions.length, 3);
+  assert.equal(delimiters.length, 6);
+  assert.equal((migration.match(/function public\.save_vehicle_sale_atomic\(/g) || []).length, 3,
+    'One definition plus the two grant/revoke signatures expected');
+  assert.match(migration.trim(), /to authenticated;$/);
+  assert.doesNotMatch(migration, /path !~ \('\^' \|\| p_vehicle_id::text \|\| '\/[a-zA-Z0-9._-]+\s*\n/);
+});
+
+test('removed files from an edited sale are queued and reattached files are excluded', () => {
+  assert.match(migration, /not \(removed\.object_path = any\(v_document_paths\)\)/);
+  assert.match(migration, /delete from private\.sale_document_cleanup_queue[\s\S]+?object_path = any\(v_document_paths\)/);
+  assert.match(migration, /from unnest\(v_document_paths\) as docs\(path\)/);
+  assert.match(migration, /or docs\.path !~/);
+  assert.match(migration, /grant usage on schema private to authenticated/);
+});
