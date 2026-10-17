@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import SiteNavigation from '@/components/SiteNavigation';
+import FloatingContact from '@/components/FloatingContact';
+import OptionalAnalytics from '@/components/OptionalAnalytics';
 import { getWhatsAppUrl } from '@/lib/contact';
 import './globals.css';
 
@@ -58,5 +61,7 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const whatsappUrl = getWhatsAppUrl('Hola, quiero hacer una consulta a 3020 Automotores.');
-  return <html lang="es-AR"><body><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessStructuredData) }} /><a className="skip-link" href="#contenido">Saltar al contenido</a><header className="site-header"><a className="brand" href="/" aria-label="3020 Automotores, inicio"><img className="brand-logo" src="https://raw.githubusercontent.com/pereyradiego8/3020automotores/main/historico/wp-content/uploads/2020/01/aut3020-blanco.png" alt="3020 Automotores" /></a><SiteNavigation whatsappUrl={whatsappUrl} /></header><div id="contenido">{children}</div><footer className="site-footer"><div><strong>3020 Automotores</strong><p>Te acompañamos a encontrar tu próximo vehículo.</p><p>Av. Dardo Rocha Nº 826, Berazategui</p></div><div className="footer-links"><a href="/autos">Vehículos</a><a href="/marcas">Marcas</a><a href="/nosotros">Nosotros</a><a href="/contacto">Contacto</a><p>Consultá por disponibilidad, precios y condiciones de cada unidad.</p></div></footer></body></html>;
+  const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+  const safeMeasurementId = measurementId && /^G-[A-Z0-9]+$/.test(measurementId) ? measurementId : null;
+  return <html lang="es-AR"><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessStructuredData) }} /><a className="skip-link" href="#contenido">Saltar al contenido</a><header className="site-header"><Link className="brand" href="/" aria-label="3020 Automotores, inicio"><img className="brand-logo" src="https://raw.githubusercontent.com/pereyradiego8/3020automotores/main/historico/wp-content/uploads/2020/01/aut3020-blanco.png" alt="3020 Automotores" width={190} height={43} decoding="async" /></Link><SiteNavigation whatsappUrl={whatsappUrl} /></header><div id="contenido">{children}</div><FloatingContact href={whatsappUrl} /><OptionalAnalytics measurementId={safeMeasurementId} /><footer className="site-footer"><div><strong>3020 Automotores</strong><p>Te acompañamos a encontrar tu próximo vehículo.</p><p>Av. Dardo Rocha Nº 826, Berazategui</p></div><div className="footer-links"><Link href="/autos">Vehículos</Link><Link href="/marcas">Marcas</Link><Link href="/nosotros">Nosotros</Link><Link href="/contacto">Contacto</Link><Link href="/privacidad">Privacidad</Link><p>Consultá por disponibilidad, precios y condiciones de cada unidad.</p></div></footer></body></html>;
 }

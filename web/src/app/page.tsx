@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import ContactLink from '@/components/ContactLink';
 import { getPublishedVehicles, type PublicVehicle } from '@/lib/inventory';
 import { getWhatsAppUrl } from '@/lib/contact';
 
@@ -158,7 +159,7 @@ export default async function HomePage() {
             <h2>¿Buscás un vehículo en particular?</h2>
             <p className="muted">Consultanos por disponibilidad, precios y condiciones actuales.</p>
             {whatsappUrl ? (
-              <a className="button" href={whatsappUrl} target="_blank" rel="noreferrer">Consultar por WhatsApp</a>
+              <ContactLink className="button" href={whatsappUrl} placement="home-contact">Consultar por WhatsApp</ContactLink>
             ) : (
               <p className="notice">El canal de WhatsApp estará disponible cuando se configure el número oficial de contacto.</p>
             )}

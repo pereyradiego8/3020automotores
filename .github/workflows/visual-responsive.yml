@@ -1,0 +1,43 @@
+name: Visual responsive (manual, no buyer data)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - name: Install browser test tools without changing lockfile
+        run: npm install --no-save --package-lock=false playwright@1.55.0
+      - run: npx playwright install --with-deps chromium
+      - name: Build public site
+        run: npm run build
+      - name: Start local server
+        run: |
+          npm run start -- --port 3000 > /tmp/3020-next-start.log 2>&1 &
+          echo $! > /tmp/3020-next.pid
+          for attempt in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:3000/marcas > /dev/null; then exit 0; fi
+            sleep 2
+          done
+          cat /tmp/3020-next-start.log
+          exit 1
+      - name: Capture screenshots and check layout overflow
+        run: node scripts/visual-smoke.mjs
+      - name: Upload visual snapshots
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: 3020-responsive-screenshots
+          path: web/artifacts/visual/
+          if-no-files-found: warn
+          retention-days: 7
