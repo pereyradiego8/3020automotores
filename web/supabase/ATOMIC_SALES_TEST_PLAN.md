@@ -20,6 +20,9 @@
 | Venta inválida | Intentar vender con comprador o documento vacío | Operación rechazada; vehículo no pasa a vendido |
 | Documento inválido | Enviar ruta de un archivo de otro vehículo | Operación rechazada; sin cambios |
 | Registrar de nuevo | Editar notas/patente de una venta existente | `sold_at` original conservado |
+| Quitar documentación | Editar una venta y desmarcar un archivo existente | El archivo quitado se encola para eliminación; los que siguen adjuntos se conservan |
+| Volver a adjuntar un archivo | Reincorporar una ruta que seguía en la cola | Se cancela la eliminación pendiente para esa ruta; no se borra un documento activo |
+| Sintaxis SQL | Aplicar la migración a una base temporal nueva y ejecutar las tres RPC | Migración completa, sin funciones duplicadas ni declaraciones truncadas |
 | Publicación incompleta | Intentar publicar un borrador sin datos o fotos | Operación rechazada |
 | Revertir venta | Cambiar de vendido a borrador, reservado o publicado | Estado actualizado y registro de comprador eliminado en una transacción |
 | Falla de Storage | Impedir temporalmente el borrado del archivo tras revertir | El estado queda correcto y la ruta privada permanece en cola de limpieza |
@@ -54,3 +57,5 @@ Esperado: `ventas_desincronizadas = 0` luego de los casos normales; `documentos_
 5. Ejecutar una operación de prueba controlada, revisar el panel y monitorear los errores sin exponer datos personales.
 
 **Límite de la verificación actual:** el CI compila el código, pero no ejecuta esta migración SQL ni realiza transacciones en Supabase.
+
+**Nota:** las verificaciones estáticas de GitHub no sustituyen una prueba de ejecución real de PostgreSQL y Storage. No aplicar esta migración en el proyecto productivo.
