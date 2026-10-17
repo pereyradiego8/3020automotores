@@ -72,8 +72,8 @@ begin
     or nullif(btrim(v_vehicle.price_text), '') is null
     or nullif(btrim(v_vehicle.description), '') is null
     or not exists (
-      select 1 from unnest(v_vehicle.image_urls) as image_url
-      where nullif(btrim(image_url), '') is not null
+      select 1 from unnest(v_vehicle.image_urls) as images(image_url)
+      where nullif(btrim(images.image_url), '') is not null
     )
   ) then
     raise exception 'Complete the vehicle information before publishing'
@@ -90,14 +90,14 @@ begin
        or char_length(btrim(coalesce(p_sale_notes, ''))) > 2000
        or cardinality(v_document_paths) > 8
        or exists (
-         select 1 from unnest(v_document_paths) as path
-         where path is null
-            or path !~ ('^' || p_vehicle_id::text || '/[a-zA-Z0-9._-]+$')
-            or right(path, 2) = '/.'
-            or right(path, 3) = '/..'
+         select 1 from unnest(v_document_paths) as docs(path)
+         where docs.path is null
+            or docs.path !~ ('^' || p_vehicle_id::text || '/[a-zA-Z0-9._-]+$')
+            or right(docs.path, 2) = '/.'
+            or right(docs.path, 3) = '/..'
        )
-       or (select count(*) from unnest(v_document_paths) as path) <>
-          (select count(distinct path) from unnest(v_document_paths) as path)
+       or (select count(*) from unnest(v_document_paths) as docs(path)) <>
+          (select count(distinct docs.path) from unnest(v_document_paths) as docs(path))
     then
       raise exception 'Invalid buyer or document data' using errcode = '23514';
     end if;
@@ -109,9 +109,9 @@ begin
     for update;
 
     insert into private.sale_document_cleanup_queue (vehicle_id, object_path)
-    select p_vehicle_id, old_path
-    from unnest(coalesce(v_old_paths, '{}'::text[])) as old_path
-    where old_path is not null and not (old_path = any(v_document_paths))
+    select p_vehicle_id, removed.object_path
+    from unnest(coalesce(v_old_paths, '{}'::text[])) as removed(object_path)
+    where removed.object_path is not null and not (removed.object_path = any(v_document_paths))
     on conflict (object_path) do nothing;
 
     -- If a previously queued path is reattached, it must not be deleted.
@@ -144,9 +144,9 @@ begin
 
     if found then
       insert into private.sale_document_cleanup_queue (vehicle_id, object_path)
-      select p_vehicle_id, old_path
-      from unnest(coalesce(v_old_paths, '{}'::text[])) as old_path
-      where old_path is not null
+      select p_vehicle_id, removed.object_path
+      from unnest(coalesce(v_old_paths, '{}'::text[])) as removed(object_path)
+      where removed.object_path is not null
       on conflict (object_path) do nothing;
 
       delete from public.vehicle_sales where vehicle_id = p_vehicle_id;
