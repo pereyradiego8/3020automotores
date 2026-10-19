@@ -9,7 +9,9 @@ import PageHero from '@/components/PageHero';
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const vehicle = await getPublishedVehicleBySlug(slug);
-  if (!vehicle) return { title: 'Vehículo no disponible', robots: { index: false, follow: true } };
+  // Throw before rendering a missing vehicle rather than returning a normal
+  // metadata object that search engines may interpret as a soft-404 page.
+  if (!vehicle) notFound();
   const canonical = `/autos/${encodeURIComponent(vehicle.slug)}`;
   return { title: vehicle.title, description: `Consultá por ${vehicle.title} en 3020 Automotores. Confirmá disponibilidad, precios y condiciones con el equipo comercial.`, alternates: { canonical }, openGraph: { title: vehicle.title, description: `Consultá por ${vehicle.title} en 3020 Automotores.`, url: canonical, images: vehicle.image_urls?.[0] ? [vehicle.image_urls[0]] : [], type: 'website' } };
 }
