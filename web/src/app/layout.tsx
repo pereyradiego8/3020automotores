@@ -23,7 +23,7 @@ const businessStructuredData = {
   '@type': 'AutoDealer',
   name: '3020 Automotores',
   url: DEFAULT_SITE_URL,
-  image: 'https://raw.githubusercontent.com/pereyradiego8/3020automotores/main/historico/wp-content/uploads/2020/01/aut3020-blanco.png',
+  image: `${DEFAULT_SITE_URL}/images/3020-logo.png`,
   telephone: '+54 9 11 3730-3619',
   email: 'automotores3020@hotmail.com',
   address: {
@@ -45,9 +45,9 @@ export const metadata: Metadata = {
   title: { default: '3020 Automotores | Encontrá tu próximo vehículo', template: '%s | 3020 Automotores' },
   description: 'Conocé el catálogo de 3020 Automotores en Berazategui, Zona Sur de Buenos Aires. Explorá autos usados y 0 km y consultá por WhatsApp.',
   icons: {
-    icon: 'https://3020automotores.ar/wp-content/uploads/2020/01/aut3020-iso-230x230.png',
-    shortcut: 'https://3020automotores.ar/wp-content/uploads/2020/01/aut3020-iso-230x230.png',
-    apple: 'https://3020automotores.ar/wp-content/uploads/2020/01/aut3020-iso-230x230.png',
+    icon: '/favicon.png',
+    shortcut: '/favicon.png',
+    apple: '/favicon.png',
   },
   openGraph: {
     type: 'website',
@@ -63,5 +63,5 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const whatsappUrl = getWhatsAppUrl('Hola, quiero hacer una consulta a 3020 Automotores.');
   const measurementId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const safeMeasurementId = measurementId && /^G-[A-Z0-9]+$/.test(measurementId) ? measurementId : null;
-  return <html lang="es-AR"><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessStructuredData) }} /><a className="skip-link" href="#contenido">Saltar al contenido</a><header className="site-header"><Link className="brand" href="/" aria-label="3020 Automotores, inicio"><img className="brand-logo" src="https://raw.githubusercontent.com/pereyradiego8/3020automotores/main/historico/wp-content/uploads/2020/01/aut3020-blanco.png" alt="3020 Automotores" width={190} height={43} decoding="async" /></Link><SiteNavigation whatsappUrl={whatsappUrl} /></header><div id="contenido">{children}</div><FloatingContact href={whatsappUrl} /><OptionalAnalytics measurementId={safeMeasurementId} /><footer className="site-footer"><div><strong>3020 Automotores</strong><p>Te acompañamos a encontrar tu próximo vehículo.</p><p>Av. Dardo Rocha Nº 826, Berazategui</p></div><div className="footer-links"><Link href="/autos">Vehículos</Link><Link href="/marcas">Marcas</Link><Link href="/nosotros">Nosotros</Link><Link href="/contacto">Contacto</Link><Link href="/privacidad">Privacidad</Link><p>Consultá por disponibilidad, precios y condiciones de cada unidad.</p></div></footer></body></html>;
+  return <html lang="es-AR"><head><link rel="preconnect" href="https://fonts.googleapis.com" /><link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" /></head><body><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(businessStructuredData) }} /><a className="skip-link" href="#contenido">Saltar al contenido</a><header className="site-header"><Link className="brand" href="/" aria-label="3020 Automotores, inicio"><img className="brand-logo" src="/images/3020-logo.png" alt="3020 Automotores" width={190} height={43} decoding="async" /></Link><SiteNavigation whatsappUrl={whatsappUrl} /></header><div id="contenido">{children}</div><FloatingContact href={whatsappUrl} /><OptionalAnalytics measurementId={safeMeasurementId} /><footer className="site-footer"><div><strong>3020 Automotores</strong><p>Te acompañamos a encontrar tu próximo vehículo.</p><p>Av. Dardo Rocha Nº 826, Berazategui</p></div><div className="footer-links"><Link href="/autos">Vehículos</Link><Link href="/marcas">Marcas</Link><Link href="/nosotros">Nosotros</Link><Link href="/contacto">Contacto</Link><Link href="/privacidad">Privacidad</Link><p>Consultá por disponibilidad, precios y condiciones de cada unidad.</p></div></footer></body></html>;
 }
