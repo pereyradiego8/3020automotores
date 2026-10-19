@@ -35,11 +35,6 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'raw.githubusercontent.com',
-        pathname: '/pereyradiego8/3020automotores/main/historico/wp-content/uploads/**',
-      },
-      {
-        protocol: 'https',
         hostname: 'zoncelsnskpuninitier.supabase.co',
         pathname: '/storage/v1/object/public/vehicle-images/**',
       },
@@ -67,6 +62,8 @@ const nextConfig: NextConfig = {
       { key: 'X-Frame-Options', value: 'DENY' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      { key: 'Content-Security-Policy', value: "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'" },
+      { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
     ];
     if (process.env.NODE_ENV === 'production') {
       commonHeaders.push({ key: 'Strict-Transport-Security', value: 'max-age=31536000' });
