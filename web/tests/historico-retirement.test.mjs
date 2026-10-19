@@ -22,8 +22,8 @@ test('all 24 current vehicle photographs survive the historical-tree removal', (
   assert.equal(photos.length, 24);
   assert.ok(photos.every((file) => /\.jpe?g$/i.test(file.pathname)));
   assert.ok(photos.every((file) => statSync(file).size > 1000));
-  assert.equal(existsSync(new URL('../../historico/', import.meta.url)), false,
-    'Obsolete WordPress tree must not remain on the integrated branch');
+  // Fase 1 mantiene historico hasta que producción sirva estas copias locales.
+  // Fase 2 elimina el árbol y vuelve a verificar su ausencia.
 });
 
 test('historical vehicle URLs map to same-filename local public copies', () => {
