@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
+import { resolveVehicleImageUrl } from '@/lib/archived-vehicle-photos';
 import { removeVehicleImage, saveVehicleImages } from './actions';
 
 export default function VehicleImageManager({ vehicleId, initialUrls }: { vehicleId: string; initialUrls: string[] }) {
@@ -78,7 +79,7 @@ export default function VehicleImageManager({ vehicleId, initialUrls }: { vehicl
     <p><strong>Fotos ({urls.length}/12)</strong></p>
     {urls.length > 0 && <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(min(100%,118px),1fr))', gap: 10, marginBottom: 12 }}>
       {urls.map((url, index) => <div key={url} style={{ minWidth: 0 }}>
-        <img src={url} alt={`Foto ${index + 1} del vehículo`} style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 6 }} />
+        <img src={resolveVehicleImageUrl(url)} alt={`Foto ${index + 1} del vehículo`} style={{ width: '100%', height: 92, objectFit: 'cover', borderRadius: 6 }} />
         <p className="muted" style={{ fontSize: 11, margin: '5px 0' }}>{index === 0 ? 'Foto principal' : `Foto ${index + 1}`}</p>
         <div style={{ display: 'flex', gap: 4 }}>
           <button type="button" className="button secondary" aria-label={`Mover foto ${index + 1} hacia la izquierda`} title="Mover antes" disabled={busy || index === 0} onClick={() => void moveImage(index, -1)} style={{ marginTop: 0, flex: 1, padding: '6px 8px' }}>←</button>
