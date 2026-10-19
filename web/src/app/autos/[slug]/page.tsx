@@ -5,6 +5,8 @@ import { getPublishedVehicleBySlug } from '@/lib/inventory';
 import { getWhatsAppUrl } from '@/lib/contact';
 import VehicleGallery from './VehicleGallery';
 import PageHero from '@/components/PageHero';
+import { serializeStructuredData, vehicleStructuredData } from '@/lib/vehicle-seo';
+import ContactLink from '@/components/ContactLink';
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -24,9 +26,13 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
   if (!vehicle) notFound();
   const specs = [['Marca', vehicle.make || 'Consultar'], ['Modelo', vehicle.model || 'Consultar'], ['Año', String(vehicle.year)], ['Kilometraje', vehicle.mileage_text || 'Consultar'], ['Tipo de vehículo', vehicle.body_type || 'Consultar'], ['Combustible', vehicle.fuel || 'Consultar'], ['Transmisión', vehicle.transmission || 'Consultar']];
   const descriptionLines = splitDescription(vehicle.description);
-  const whatsappUrl = getWhatsAppUrl('Hola, quiero consultar por ' + vehicle.title + '. ¿Me confirman disponibilidad, precio de contado y precio de permuta?');
+  const whatsappUrl = getWhatsAppUrl('Hola, quiero consultar por ' + vehicle.title + '. ¿Me confirman disponibilidad y precio actual?');
+  const permutaUrl = getWhatsAppUrl('Hola, ¿reciben mi vehículo en permuta por ' + vehicle.title + '?');
+  const financingUrl = getWhatsAppUrl('Hola, quiero consultar si ofrecen opciones de financiación para ' + vehicle.title + '.');
+  const structuredData = vehicleStructuredData(vehicle);
   return (
     <main>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeStructuredData(structuredData) }} />
       <PageHero
         compact
         eyebrow="Catálogo · Ficha del vehículo"
@@ -51,9 +57,18 @@ export default async function VehiclePage({ params }: { params: Promise<{ slug: 
               <div className="spec-list">{specs.map(([label, value]) => (
                 <div className="spec-item" key={label}><small>{label}</small><strong>{value}</strong></div>
               ))}</div>
-              {whatsappUrl
-                ? <a className="button detail-contact-button" href={whatsappUrl} target="_blank" rel="noreferrer">Consultar por WhatsApp →</a>
-                : <p className="notice">El canal de WhatsApp estará disponible cuando se configure el número oficial de contacto.</p>}
+              <div className="detail-contact-actions">
+                <ContactLink className="button detail-contact-button" href={whatsappUrl} vehicleSlug={vehicle.slug} placement="vehicle-detail" intent="availability">
+                  Consultar disponibilidad por WhatsApp →
+                </ContactLink>
+                <ContactLink className="button secondary" href={permutaUrl} vehicleSlug={vehicle.slug} placement="vehicle-detail" intent="trade-in">
+                  Consultar permuta
+                </ContactLink>
+                <ContactLink className="button secondary" href={financingUrl} vehicleSlug={vehicle.slug} placement="vehicle-detail" intent="financing">
+                  Consultar financiación
+                </ContactLink>
+              </div>
+              <p className="muted detail-contact-disclaimer">La recepción de permutas y las opciones de financiación están sujetas a confirmación del concesionario.</p>
             </div>
           </div>
           {(descriptionLines.length > 0 || vehicle.features?.length > 0) && (

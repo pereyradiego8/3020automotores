@@ -5,6 +5,8 @@ import Link from 'next/link';
 import VehicleImageManager from './VehicleImageManager';
 import VehicleStatusForm from './VehicleStatusForm';
 import SaleOptionalFieldEditor from './SaleOptionalFieldEditor';
+import PrivateSaleDocumentLink from './PrivateSaleDocumentLink';
+import { getPublicationIssues } from '@/lib/publication-policy';
 
 type Sale = {
   vehicle_id: string;
@@ -15,12 +17,14 @@ type Sale = {
   sale_notes: string | null;
   sold_at: string;
   document_paths: string[] | null;
-  document_links?: { path: string; url: string }[];
 };
 
 type Vehicle = {
   id: string;
   title: string;
+  slug: string;
+  price_text: string | null;
+  description: string | null;
   make: string | null;
   model: string | null;
   year: number | null;
@@ -99,7 +103,10 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
         </label>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 20 }} aria-label="Resumen del inventario">
+      <div className="admin-status-filters" aria-label="Resumen del inventario">
+        <button type="button" className={status === 'all' ? 'button' : 'button secondary'} onClick={() => setStatus('all')} aria-pressed={status === 'all'}>
+          Todos ({counts.all})
+        </button>
         {statuses.map((key) => (
           <button key={key} type="button" className={status === key ? 'button' : 'button secondary'} onClick={() => setStatus(key)} aria-pressed={status === key} style={{ marginTop: 0, padding: '9px 12px', fontSize: 12 }}>
             {labels[key]} ({counts[key]})
@@ -146,9 +153,11 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{sale?.vehicle_plate || '—'}<div style={{ marginTop: 6 }}><SaleOptionalFieldEditor vehicleId={v.id} sale={sale ?? null} field="plate" /></div></td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)', whiteSpace: 'pre-wrap', maxWidth: 260 }}>{sale?.sale_notes || '—'}</td>
                     <td style={{ padding: '12px 14px', borderBottom: '1px solid var(--border)' }}>
-                      {sale?.document_links?.length ? (
+                      {sale?.document_paths?.length ? (
                         <div style={{ display: 'grid', gap: 5 }}>
-                          {sale.document_links.map((doc, index) => <a key={doc.path} className="text-link" href={doc.url} target="_blank" rel="noreferrer">Abrir archivo {index + 1}</a>)}
+                          {sale.document_paths.map((path, index) => (
+                            <PrivateSaleDocumentLink key={path} path={path} number={index + 1} />
+                          ))}
                         </div>
                       ) : <span className="muted">Sin archivos</span>}
                                           </td>
@@ -167,7 +176,11 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
                 <span className="muted" style={{ fontSize: 12 }}>{v.image_urls?.length || 0} fotos</span>
               </div>
               <h3>{v.title}</h3>
-              <p><Link className="text-link" href={'/admin/editar/' + v.id}>Editar datos →</Link></p>
+              <div className="admin-vehicle-links">
+                  <Link className="text-link" href={'/admin/editar/' + v.id}>Editar datos →</Link>
+                  <Link className="text-link" href={'/admin/previsualizar/' + v.id}>Vista previa privada ↗</Link>
+                </div>
+                <PublicationReadiness vehicle={v} />
               <p className="muted">{v.make} {v.model} · {v.year}</p>
               <VehicleStatusForm
                 vehicleId={v.id}
@@ -181,5 +194,17 @@ export default function AdminInventory({ vehicles, sales }: { vehicles: Vehicle[
         </div>
       )}
     </section>
+  );
+}
+
+function PublicationReadiness({ vehicle }: { vehicle: Vehicle }) {
+  if (vehicle.status === 'published' || vehicle.status === 'sold') return null;
+  const issues = getPublicationIssues(vehicle);
+  return issues.length ? (
+    <p className="publication-readiness publication-readiness--pending">
+      Antes de publicar faltan: {issues.join(', ')}.
+    </p>
+  ) : (
+    <p className="publication-readiness publication-readiness--ready">Datos mínimos completos; lista para publicar.</p>
   );
 }

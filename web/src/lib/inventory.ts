@@ -1,4 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
+import { cache } from 'react';
+import { resolveVehicleImageUrls } from '@/lib/archived-vehicle-photos';
 
 export type PublicVehicle = {
   id: string; title: string; slug: string; make: string; model: string; year: number; updated_at: string | null;
@@ -23,7 +25,7 @@ function ensureInventoryConfigured() {
   }
 }
 
-export async function getPublishedVehicles(): Promise<PublicVehicle[]> {
+export const getPublishedVehicles = cache(async (): Promise<PublicVehicle[]> => {
   ensureInventoryConfigured();
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -35,11 +37,11 @@ export async function getPublishedVehicles(): Promise<PublicVehicle[]> {
     console.error('Public vehicle inventory query failed.', { code: error.code });
     throw new InventoryUnavailableError();
   }
-  return (data || []) as PublicVehicle[];
-}
+  return ((data || []) as PublicVehicle[]).map(v => ({...v, image_urls: resolveVehicleImageUrls(v.image_urls)}));
+});
 
 /** Look up only the requested published vehicle, rather than downloading all stock. */
-export async function getPublishedVehicleBySlug(slug: string): Promise<PublicVehicle | null> {
+export const getPublishedVehicleBySlug = cache(async (slug: string): Promise<PublicVehicle | null> => {
   ensureInventoryConfigured();
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -52,5 +54,5 @@ export async function getPublishedVehicleBySlug(slug: string): Promise<PublicVeh
     console.error('Public vehicle detail query failed.', { code: error.code });
     throw new InventoryUnavailableError();
   }
-  return (data ?? null) as PublicVehicle | null;
-}
+  return data ? ({...data, image_urls: resolveVehicleImageUrls(data.image_urls)} as PublicVehicle) : null;
+});

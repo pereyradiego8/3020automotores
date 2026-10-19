@@ -17,15 +17,22 @@ const legacyRedirects = [
   { source: '/', has: [{ type: 'query' as const, key: 'p', value: '4819' }], destination: '/marcas', permanent: true },
 ];
 
+// Las fichas retiradas o renombradas no deben terminar en una página vacía.
+// Una transmisión o versión diferente nunca se presenta como la misma unidad.
+const legacyVehicleAliases = [
+  { slug: 'argo-drive-1-3-cvt', destination: '/autos' },
+  { slug: 'chevrolet-cruze-1-4-turbo-premier-at-2023', destination: '/autos' },
+  { slug: 'ford-ranger-xlt-2-0-4x4', destination: '/autos' },
+  { slug: 'cronos-1-3-pack-plus-0km', destination: '/autos/fiat-cronos-1-3-pack-plus-0km' },
+].flatMap(({ slug, destination }) => [
+  { source: `/autos/${slug}`, destination, permanent: true },
+  { source: `/autos/${slug}/index.html`, destination, permanent: true },
+]);
+
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   images: {
     remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'raw.githubusercontent.com',
-        pathname: '/pereyradiego8/3020automotores/main/historico/wp-content/uploads/**',
-      },
       {
         protocol: 'https',
         hostname: 'zoncelsnskpuninitier.supabase.co',
@@ -36,6 +43,7 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [
       ...legacyRedirects,
+      ...legacyVehicleAliases,
       { source: '/index.html', destination: '/', permanent: true },
       { source: '/autos.html', destination: '/autos', permanent: true },
       { source: '/autos/:slug/index.html', destination: '/autos/:slug', permanent: true },
@@ -54,6 +62,8 @@ const nextConfig: NextConfig = {
       { key: 'X-Frame-Options', value: 'DENY' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      { key: 'Content-Security-Policy', value: "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'" },
+      { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
     ];
     if (process.env.NODE_ENV === 'production') {
       commonHeaders.push({ key: 'Strict-Transport-Security', value: 'max-age=31536000' });
