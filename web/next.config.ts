@@ -54,6 +54,11 @@ const nextConfig: NextConfig = {
       { key: 'X-Frame-Options', value: 'DENY' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      // Baseline enforced directives that do not block Next.js hydration,
+      // Supabase requests, the map embed or dealership contact links.
+      // A restrictive script-src requires a tested per-request nonce strategy.
+      { key: 'Content-Security-Policy', value: "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'" },
+      { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
     ];
     if (process.env.NODE_ENV === 'production') {
       commonHeaders.push({ key: 'Strict-Transport-Security', value: 'max-age=31536000' });
