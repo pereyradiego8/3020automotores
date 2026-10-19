@@ -54,6 +54,10 @@ const nextConfig: NextConfig = {
       { key: 'X-Frame-Options', value: 'DENY' },
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
+      // Compatible CSP baseline: a strict script-src will require per-request
+      // nonces and separate browser testing for Next.js, Supabase and maps.
+      { key: 'Content-Security-Policy', value: "object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'" },
+      { key: 'X-Permitted-Cross-Domain-Policies', value: 'none' },
     ];
     if (process.env.NODE_ENV === 'production') {
       commonHeaders.push({ key: 'Strict-Transport-Security', value: 'max-age=31536000' });
