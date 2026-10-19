@@ -36,10 +36,10 @@ test('published stock reads are deduplicated within a request only', () => {
   assert.doesNotMatch(inv, /unstable_cache|revalidate:\s*\d+/);
 });
 
-test('missing vehicle returns a notFound response from metadata as well as the page', () => {
+test('withdrawn or nonexistent vehicles are marked noindex during streaming', () => {
   const page = src('app/autos/[slug]/page.tsx');
+  assert.match(page, /if \(!vehicle\) return \{ title: 'Vehículo no disponible', robots: \{ index: false, follow: true \} \}/);
   assert.match(page, /if \(!vehicle\) notFound\(\)/);
-  assert.equal((page.match(/if \(!vehicle\) notFound\(\)/g) || []).length, 2);
 });
 
 test('CI uses same Node major version as Vercel production', () => {
