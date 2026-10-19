@@ -3,11 +3,13 @@ on:
   pull_request:
     paths:
       - 'web/**'
+      - 'historico/**'
       - '.github/workflows/web-build.yml'
   push:
     branches: [main, propuesta-web-independiente]
     paths:
       - 'web/**'
+      - 'historico/**'
       - '.github/workflows/web-build.yml'
 permissions:
   contents: read
