@@ -39,7 +39,7 @@ export function vehicleStructuredData(vehicle: SeoVehicle, siteUrl = 'https://30
     model: vehicle.model,
     vehicleModelDate: String(vehicle.year),
     ...(vehicle.description?.trim() ? { description: vehicle.description.trim() } : {}),
-    ...(vehicle.image_urls.length ? { image: vehicle.image_urls } : {}),
+    ...(vehicle.image_urls.length ? { image: vehicle.image_urls.map((imagePath) => new URL(imagePath, siteUrl).toString()) } : {}),
     ...(mileage !== null ? { mileageFromOdometer: { '@type': 'QuantitativeValue', value: mileage, unitCode: 'KMT' } } : {}),
     ...(parsedPrice ? {
       offers: {
