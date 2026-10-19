@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { cache } from 'react';
 
 export type PublicVehicle = {
   id: string; title: string; slug: string; make: string; model: string; year: number; updated_at: string | null;
@@ -23,7 +24,7 @@ function ensureInventoryConfigured() {
   }
 }
 
-export async function getPublishedVehicles(): Promise<PublicVehicle[]> {
+export const getPublishedVehicles = cache(async (): Promise<PublicVehicle[]> => {
   ensureInventoryConfigured();
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -36,10 +37,10 @@ export async function getPublishedVehicles(): Promise<PublicVehicle[]> {
     throw new InventoryUnavailableError();
   }
   return (data || []) as PublicVehicle[];
-}
+});
 
 /** Look up only the requested published vehicle, rather than downloading all stock. */
-export async function getPublishedVehicleBySlug(slug: string): Promise<PublicVehicle | null> {
+export const getPublishedVehicleBySlug = cache(async (slug: string): Promise<PublicVehicle | null> => {
   ensureInventoryConfigured();
   const supabase = await createClient();
   const { data, error } = await supabase
@@ -53,4 +54,4 @@ export async function getPublishedVehicleBySlug(slug: string): Promise<PublicVeh
     throw new InventoryUnavailableError();
   }
   return (data ?? null) as PublicVehicle | null;
-}
+});
