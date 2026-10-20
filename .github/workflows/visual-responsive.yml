@@ -34,7 +34,7 @@ jobs:
       - name: Capture screenshots and check layout overflow
         run: node scripts/visual-smoke.mjs
       - name: Upload visual snapshots
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: 3020-responsive-screenshots
